@@ -4,7 +4,7 @@ import mediapipe as mp
 import os
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-import pickle
+import json
 
 class YogaDataPreprocessor:
     def __init__(self):
@@ -207,11 +207,14 @@ class YogaDataPreprocessor:
         
         return X_train_scaled, X_val_scaled, X_test_scaled, y_train, y_val, y_test
     
-    def save_preprocessor(self, filename='preprocessor.pkl'):
-        """Save preprocessor components"""
-        with open(filename, 'wb') as f:
-            pickle.dump({
-                'scaler': self.scaler,
-                'pose_mapping': self.pose_mapping,
-                'pose_names': self.pose_names
-            }, f)
+    def save_preprocessor(self, filename='preprocessor.json'):
+        """Save preprocessor parameters as JSON"""
+        import json
+        data = {
+            'scaler_mean': self.scaler.mean_.tolist() if hasattr(self.scaler, 'mean_') else None,
+            'scaler_scale': self.scaler.scale_.tolist() if hasattr(self.scaler, 'scale_') else None,
+            'pose_mapping': self.pose_mapping,
+            'pose_names': self.pose_names
+        }
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=2)

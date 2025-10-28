@@ -5,7 +5,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-import pickle
+import json
 import time
 
 class YogaModelTrainer:
@@ -114,21 +114,23 @@ class YogaModelTrainer:
         print(f"\nConfusion Matrix:")
         print(confusion_matrix(y_test, y_pred))
     
-    def save_best_model(self, filename='best_yoga_model.pkl'):
-        """Save the best trained model"""
+    def save_model_info(self, filename='best_model_info.json'):
+        """Save model information as JSON"""
         if self.best_model is None:
             print("No model to save!")
             return
         
-        model_data = {
-            'model': self.best_model,
+        import json
+        model_info = {
             'model_name': self.best_model_name,
-            'accuracy': self.best_score,
+            'model_type': type(self.best_model).__name__,
+            'accuracy': float(self.best_score),
+            'parameters': self.best_model.get_params() if hasattr(self.best_model, 'get_params') else {},
             'pose_names': self.pose_names
         }
         
-        with open(filename, 'wb') as f:
-            pickle.dump(model_data, f)
+        with open(filename, 'w') as f:
+            json.dump(model_info, f, indent=2, default=str)
         
-        print(f"Best model ({self.best_model_name}) saved to {filename}")
+        print(f"Best model info ({self.best_model_name}) saved to {filename}")
         print(f"Model accuracy: {self.best_score:.3f}")

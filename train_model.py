@@ -84,7 +84,7 @@ def main():
     print("-" * 40)
     
     try:
-        trainer.save_best_model()
+        trainer.save_model_info()
         
     except Exception as e:
         print(f"❌ Error saving model: {e}")
@@ -99,8 +99,8 @@ def main():
     print(f"🏆 Best model: {trainer.best_model_name}")
     print(f"🎯 Best validation accuracy: {trainer.best_score:.3f}")
     print(f"📁 Files generated:")
-    print(f"  • best_yoga_model.pkl (trained model)")
-    print(f"  • preprocessor.pkl (data preprocessor)")
+    print(f"  • best_model_info.json (model information)")
+    print(f"  • preprocessor.json (data preprocessor)")
 
 if __name__ == "__main__":
     main()
