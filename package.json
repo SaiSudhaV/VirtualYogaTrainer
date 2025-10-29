@@ -1,0 +1,17 @@
+{
+  "name": "yoga-pose-detection-web",
+  "version": "1.0.0",
+  "description": "Web-based yoga pose detection using PoseNet and ML5.js",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "serve": "npx http-server -p 8000"
+  },
+  "keywords": ["yoga", "pose-detection", "ml5", "posenet", "machine-learning"],
+  "author": "Yoga Pose Detection Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
