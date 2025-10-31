@@ -214,7 +214,11 @@ yoga_pose_detection/
 ├── model_trainer_web.js        # ML5.js neural network training
 ├── main.js                     # Application logic
 ├── package.json                # Web dependencies
-└── datasets/                   # Training images (10 pose folders)
+├── datasets/                   # Training images (10 pose folders)
+└── presentations/              # Evaluation presentations
+    ├── MT24AAC019_MiniProject_Evaluation1.pptx
+    ├── MT24AAC019_MiniProject_Evaluation2_Outline.md
+    └── Evaluation2_Presentation_Script.md
 ```
 
 
