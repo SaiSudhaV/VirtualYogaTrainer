@@ -1,51 +1,16 @@
-# 🧘 Yoga Pose Detection - Novel Feature Engineering & Comparative Analysis
+# 🧘 Real-Time Virtual Yoga Studio
 
-A research-focused machine learning project that introduces **novel feature engineering techniques** and provides **comprehensive comparison** with existing yoga pose detection methods.
+A web-based yoga pose detection system using PoseNet and TensorFlow.js for real-time pose analysis and interactive training sessions.
 
-## 🔬 Research Contribution & Novelty
+## Features
 
-### 🆕 Novel Features Introduced:
+- **Real-time Pose Detection**: 10 yoga poses with accuracy feedback
+- **Interactive Timer**: Automatic timing based on pose correctness
+- **Cross-Platform**: Desktop, tablet, and mobile support
+- **PWA Support**: Install as native app
+- **Offline Capability**: Works without internet after initial load
 
-1. **Multi-Scale Geometric Features (NEW)**
-   - Cross-body diagonal measurements
-   - Pose symmetry indices
-   - Dynamic body proportion ratios
-
-2. **Enhanced Angle Computation (IMPROVED)**
-   - 3D spatial angle calculations vs traditional 2D
-   - Temporal angle stability metrics
-   - Joint flexibility measurements
-
-3. **Comparative Model Ensemble (NEW)**
-   - Multi-algorithm performance benchmarking
-   - Automated hyperparameter optimization pipeline
-   - Cross-validation with stratified sampling
-
-### 📊 Comparison with Existing Work
-
-| Method | Features | Accuracy | Dataset Size | Limitations |
-|--------|----------|----------|--------------|-------------|
-| **Our Method** | 30 engineered | 85-92% | 1000+ images | Requires pose landmarks |
-| Traditional CNN | Raw pixels | 78-85% | 500-800 images | Computationally expensive |
-| Basic MediaPipe | 6 angles | 65-75% | 200-400 images | Limited feature set |
-| LSTM-based | Temporal | 70-80% | Video sequences | Requires video data |
-
-### 🎯 Addressing Existing Limitations:
-
-1. **Limited Feature Engineering**: Most existing work uses basic angle measurements
-2. **Small Dataset Sizes**: Our approach works with larger, more diverse datasets
-3. **Single Algorithm Focus**: We provide comprehensive multi-algorithm comparison
-4. **Lack of Preprocessing Pipeline**: Complete data preprocessing and validation system
-
-## 📋 Project Overview
-
-This project implements:
-- **Novel feature engineering** with 24 optimized pose descriptors
-- **Web-based real-time detection** using PoseNet and ML5.js
-- **Comparative analysis** with existing methods
-- **Interactive training interface** for data collection and model training
-
-### 🎯 Supported Yoga Poses (10 Classes)
+## Supported Poses
 
 1. **Pranamasana** (Prayer Pose)
 2. **Hastauttanasana** (Raised Arms Pose)
@@ -58,171 +23,118 @@ This project implements:
 9. **Padmasana** (Lotus Pose)
 10. **Tadasana** (Mountain Pose)
 
-## 🔬 Technical Architecture
+## Quick Start
 
-**PoseNet** detects 17 key body points in real-time using deep neural networks, providing x, y coordinates with confidence scores for robust pose estimation across different body types and lighting conditions.
+### Prerequisites
+- Modern web browser (Chrome recommended)
+- Webcam access
+- Python 3.6+ or Node.js 12+
 
-### 📊 Enhanced Feature Engineering (24 Features)
+### Installation
 
-Our web system extracts **24 optimized features** from PoseNet's 17 keypoints:
-
-#### 1. Joint Angles (8 features)
-- **Arm Angles**: Shoulder-Elbow-Wrist angles for both arms
-- **Leg Angles**: Hip-Knee-Ankle angles for both legs  
-- **Torso Angles**: Cross-body shoulder and hip measurements
-- **Symmetry Angles**: Left-right body alignment
-
-#### 2. Distance Measurements (6 features)
-- **Hand-to-Hand Distance**: Arm span measurements
-- **Foot-to-Foot Distance**: Leg positioning
-- **Body Proportions**: Shoulder width, hip width
-- **Head-Body Distances**: Nose to hip measurements
-
-#### 3. Body Ratios & Symmetry (6 features)
-- **Vertical Alignment**: Shoulder, hip, ankle symmetry
-- **Proportion Ratios**: Upper/lower body measurements
-- **Balance Metrics**: Left-right body balance
-
-#### 4. Pose Orientation (4 features)
-- **Head Position**: Relative to body center
-- **Limb Spread**: Arm and leg extension measurements
-- **Body Tilt**: Overall pose orientation
-
-## 🛠️ Technology Stack & Library Comparison
-
-### 🔄 Migration from Python to Web Technologies
-
-#### **Previous Libraries (Python) - Drawbacks:**
-
-**OpenCV:**
-- ❌ Large installation size (~200MB)
-- ❌ Platform-dependent builds
-- ❌ High memory usage
-- ❌ CPU-only processing for basic operations
-
-**MediaPipe:**
-- ❌ Google infrastructure dependency
-- ❌ Limited customization (fixed 33 landmarks)
-- ❌ Breaking changes with updates
-- ❌ Some features require internet connectivity
-
-**NumPy:**
-- ❌ Memory overhead with array copies
-- ❌ Single-threaded operations
-- ❌ Python GIL limitations
-- ❌ Memory issues with large datasets
-
-**Scikit-learn:**
-- ❌ No GPU acceleration
-- ❌ Entire dataset must fit in RAM
-- ❌ Limited deep learning capabilities
-- ❌ Poor scaling on large datasets
-
-#### **New Libraries (Web) - Advantages:**
-
-**PoseNet + ML5.js:**
-- ✅ Lightweight (~2MB vs ~500MB)
-- ✅ Cross-platform (runs in any browser)
-- ✅ GPU acceleration via WebGL
-- ✅ Real-time performance (30+ FPS)
-- ✅ No installation required
-- ✅ Progressive loading
-- ✅ Offline capability with service workers
-
-**P5.js:**
-- ✅ Simple canvas rendering
-- ✅ Built-in video capture
-- ✅ Interactive UI components
-- ✅ Cross-browser compatibility
-
-### 🎯 Why We Chose Web Technologies
-
-1. **Accessibility**: No installation, works on any device
-2. **Performance**: WebGL GPU acceleration
-3. **Deployment**: Single HTML file deployment
-4. **Maintenance**: Automatic updates via CDN
-5. **Scalability**: Distributed processing in browsers
-6. **Cost**: No server infrastructure needed
-
-### 📊 Migration Performance Comparison
-
-| Metric | Python Stack | Web Stack | Improvement |
-|--------|-------------|-----------|-------------|
-| **Size** | ~500MB | ~2MB | 99.6% reduction |
-| **Startup** | 10-15s | 2-3s | 5x faster |
-| **FPS** | 10-15 | 30+ | 2x faster |
-| **Memory** | 200-500MB | 50-100MB | 5x less |
-| **Installation** | Required | None | Zero setup |
-
-## 🚀 How to Run the Project
-
-### 1. Dataset Structure
-Ensure your dataset follows this structure:
-```
-datasets/
-├── 1_pranamasana/          # Prayer Pose images
-├── 2_hastauttanasana/      # Raised Arms Pose images
-├── 3_hastapadasana/        # Standing Forward Bend images
-├── 4_ashwa_sanchalanasana/ # Low Lunge images
-├── 5_dandasana/            # Staff Pose images
-├── 6_ashtanga_namaskara/   # Eight-Limbed Pose images
-├── 7_bhujangasana/         # Cobra Pose images
-├── 8_adho_mukha_svanasana/ # Downward Dog images
-├── padmasana/              # Lotus Pose images
-└── tadasana/               # Mountain Pose images
-```
-
-### 2. Run Web Application
+**Python Server:**
 ```bash
-# Start local server
-npm start
-# or
+cd yoga_pose_detection
 python -m http.server 8000
-
-# Open browser to http://localhost:8000
+# Open: http://localhost:8000
 ```
 
-**Expected Output**:
-- Real-time pose detection in browser
-- Interactive data collection interface
-- Live model training with progress updates
-- Instant pose classification results
-- Downloadable trained model files
+**Node.js Server:**
+```bash
+cd yoga_pose_detection
+npx http-server -p 8000
+# Open: http://localhost:8000
+```
 
-## 📊 Dataset Information
+**VS Code Live Server:**
+- Install Live Server extension
+- Right-click `index.html` → "Open with Live Server"
 
-- **Total Images**: 1,500+ across 10 yoga poses
-- **Sources**: Yoga-82 dataset, Kaggle, custom collection
-- **Largest Classes**: Bhujangasana (213+), Adho Mukha Svanasana (175+)
-- **Features**: 24 engineered features per pose
-- **Access**: `wget https://sites.google.com/view/yoga-82/home`
+## Usage
 
+1. **Allow camera access** when prompted
+2. **Select pose** from dropdown menu
+3. **Position yourself** 3-6 feet from camera
+4. **Click "Start Session"** to begin
+5. **Hold pose** - timer runs when pose is correct (green border)
+6. **Adjust position** if border turns red
 
+### Controls
+- **Start/Resume**: Begin or continue session
+- **Pause**: Pause timer
+- **Reset**: Reset timer and start over
 
+## Setup Requirements
 
+### Camera Setup
+- Distance: 3-6 feet from camera
+- Lighting: Good ambient lighting, avoid backlighting
+- Background: Plain, uncluttered background
+- Position: Full body visible in frame
 
+### Browser Compatibility
+- Chrome 80+ (recommended)
+- Firefox 75+
+- Safari 13+
+- Edge 80+
 
+## Troubleshooting
 
-## 📁 Project Structure
+### Camera Issues
+- Check browser permissions (click lock icon in address bar)
+- Ensure HTTPS or localhost for camera access
+- Try different browser if issues persist
+- Clear browser cache and restart
+
+### Performance Issues
+- Close other browser tabs
+- Use good lighting conditions
+- Ensure plain background
+- Try Chrome for best performance
+
+### Server Issues
+```bash
+# Check if port is available
+netstat -an | grep 8000
+
+# Use different port if needed
+python -m http.server 3000
+```
+
+## Mobile Installation (PWA)
+
+**iOS:**
+1. Open in Safari
+2. Tap Share → "Add to Home Screen"
+
+**Android:**
+1. Open in Chrome
+2. Tap menu → "Add to Home Screen" or "Install App"
+
+## Technical Details
+
+- **Frontend**: HTML5, CSS3, JavaScript
+- **ML Framework**: TensorFlow.js, PoseNet
+- **Pose Detection**: 17 keypoints, 24 engineered features
+- **Performance**: 15-30+ FPS depending on device
+- **Accuracy**: 75-95% depending on conditions
+
+## Project Structure
 
 ```
 yoga_pose_detection/
-├── README.md                    # Project documentation
-├── index.html                  # Main web application
-├── pose_detector_web.js        # PoseNet-based pose detection
-├── feature_extractor_web.js    # Enhanced feature extraction
-├── model_trainer_web.js        # ML5.js neural network training
-├── main.js                     # Application logic
-├── package.json                # Web dependencies
-├── datasets/                   # Training images (10 pose folders)
-└── presentations/              # Evaluation presentations
-    ├── MT24AAC019_MiniProject_Evaluation1.pptx
-    ├── MT24AAC019_MiniProject_Evaluation2_Outline.md
-    └── Evaluation2_Presentation_Script.md
+├── index.html                 # Main application
+├── manifest.json             # PWA manifest
+├── service-worker.js         # Offline functionality
+├── src/js/                   # JavaScript modules
+│   ├── device_compatibility.js
+│   ├── yoga_pose_detector.js
+│   ├── yoga_timer.js
+│   └── yoga_studio_app.js
+├── datasets/                 # Training data (10 pose folders)
+└── docs/                    # Documentation
 ```
 
+## License
 
-
----
-
-**Research-focused project demonstrating novel feature engineering and comparative analysis in yoga pose detection**
+MIT License - Open source project for the yoga community.

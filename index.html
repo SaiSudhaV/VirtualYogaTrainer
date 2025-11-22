@@ -3,43 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yoga Pose Detection - Web Implementation</title>
-    <script src="https://cdn.jsdelivr.net/npm/ml5@latest/dist/ml5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/p5@latest/dist/p5.min.js"></script>
+    <title>Real-Time Virtual Yoga Studio</title>
+    <!-- Core ML Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet@latest/dist/posenet.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webrtc-adapter@latest/out/adapter.min.js"></script>
+    
+    <!-- Mobile Support -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9InVybCgjZ3JhZGllbnQwX2xpbmVhcl8xXzEpIi8+CjxwYXRoIGQ9Ik05NiA0OEM4MC41MzYgNDggNjggNjAuNTM2IDY4IDc2QzY4IDkxLjQ2NCA4MC41MzYgMTA0IDk2IDEwNEMxMTEuNDY0IDEwNCAxMjQgOTEuNDY0IDEyNCA3NkMxMjQgNjAuNTM2IDExMS40NjQgNDggOTYgNDhaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNOTYgMTA0QzEwNi40IDEwNCAxMTUuMiAxMTIuOCAxMTUuMiAxMjMuMlYxNDRIOTZWMTIzLjJDOTYgMTEyLjggODcuMiAxMDQgNzYuOCAxMDRIOTZaIiBmaWxsPSJ3aGl0ZSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkaWVudDBfbGluZWFyXzFfMSIgeDE9IjAiIHkxPSIwIiB4Mj0iMTkyIiB5Mj0iMTkyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM2NjdlZWEiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNzY0YmEyIi8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHN2Zz4K">
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#764ba2">
+    <meta name="msapplication-TileColor" content="#667eea">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .controls { margin: 20px 0; }
-        button { padding: 10px 20px; margin: 5px; }
-        #status { margin: 10px 0; font-weight: bold; }
-        .pose-info { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: row;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            min-height: 0;
+        }
+
+        /* Mobile Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .sidebar {
+                width: 100%;
+                order: 2;
+                max-height: 40vh;
+                position: relative;
+            }
+            
+            .main-content {
+                order: 1;
+                padding: 10px;
+                min-height: 60vh;
+            }
+            
+            .video-container {
+                width: 100%;
+                max-width: 100vw;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .timer-display {
+                font-size: 36px;
+            }
+            
+            .status-display {
+                font-size: 18px;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+
+        .video-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .video-container.correct {
+            border: 5px solid #4CAF50;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+
+        .video-container.incorrect {
+            border: 5px solid #f44336;
+            box-shadow: 0 0 20px rgba(244, 67, 54, 0.5);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .pose-info {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .pose-selector {
+            margin-bottom: 20px;
+        }
+
+        .pose-selector select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background: #333;
+            color: white;
+            font-size: 16px;
+        }
+
+        .timer-display {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: #4CAF50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .status-display {
+            font-size: 24px;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .status-correct {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+        }
+
+        .status-incorrect {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .pose-list {
+            list-style: none;
+        }
+
+        .pose-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pose-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .pose-item.active {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 4px solid #4CAF50;
+        }
+
+        .accuracy-display {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧘 Yoga Pose Detection - Web Implementation</h1>
-        
-        <div class="controls">
-            <button onclick="startCamera()">Start Camera</button>
-            <button onclick="stopCamera()">Stop Camera</button>
-            <button onclick="collectData()">Collect Training Data</button>
-            <button onclick="trainModel()">Train Model</button>
+        <div class="sidebar">
+            <h2>🧘 Virtual Yoga Studio</h2>
+            
+            <div class="pose-selector">
+                <h3>Select Pose</h3>
+                <select id="poseSelect">
+                    <option value="0">Pranamasana (Prayer)</option>
+                    <option value="1">Hastauttanasana (Raised Arms)</option>
+                    <option value="2">Hastapadasana (Forward Bend)</option>
+                    <option value="3">Ashwa Sanchalanasana (Low Lunge)</option>
+                    <option value="4">Dandasana (Staff Pose)</option>
+                    <option value="5">Ashtanga Namaskara (Eight-Limbed)</option>
+                    <option value="6">Bhujangasana (Cobra)</option>
+                    <option value="7">Adho Mukha Svanasana (Downward Dog)</option>
+                    <option value="8">Padmasana (Lotus)</option>
+                    <option value="9">Tadasana (Mountain)</option>
+                </select>
+            </div>
+
+            <div class="pose-info">
+                <h3 id="currentPoseName">Pranamasana</h3>
+                <p id="poseDescription">Stand with palms together in prayer position at chest level.</p>
+            </div>
+
+            <div class="timer-display" id="timerDisplay">00:00</div>
+            
+            <div class="status-display" id="statusDisplay">Position yourself in front of camera</div>
+
+            <div class="accuracy-display">
+                <div>Pose Accuracy: <span id="accuracyValue">0%</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="accuracyBar"></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" id="startBtn">Start Session</button>
+                <button class="btn btn-secondary" id="pauseBtn">Pause</button>
+                <button class="btn btn-danger" id="resetBtn">Reset</button>
+            </div>
+
+            <ul class="pose-list" id="poseList">
+                <!-- Pose list will be populated by JavaScript -->
+            </ul>
         </div>
-        
-        <div id="status">Ready to start...</div>
-        
-        <div class="pose-info">
-            <h3>Detected Pose: <span id="pose-name">None</span></h3>
-            <p>Confidence: <span id="confidence">0%</span></p>
-            <p>Features Extracted: <span id="feature-count">0</span></p>
+
+        <div class="main-content">
+            <div class="video-container" id="videoContainer">
+                <div id="canvas-container"></div>
+            </div>
         </div>
-        
-        <div id="canvas-container"></div>
     </div>
-    
-    <script src="pose_detector_web.js"></script>
-    <script src="feature_extractor_web.js"></script>
-    <script src="model_trainer_web.js"></script>
-    <script src="main.js"></script>
+
+    <script src="src/js/device_compatibility.js"></script>
+    <script src="src/js/yoga_pose_detector.js"></script>
+    <script src="src/js/yoga_timer.js"></script>
+    <script src="src/js/yoga_studio_app.js"></script>
 </body>
 </html>
