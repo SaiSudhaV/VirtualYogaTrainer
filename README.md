@@ -322,7 +322,3 @@ yoga_pose_detection/
 - **Social Features**: AI-powered community challenges
 - **Yoga Therapy**: AI-assisted therapeutic sequences
 - **Accessibility**: AI adaptations for different physical abilities
-
-## License
-
-MIT License - Open source AI-enhanced project for the global yoga community.
