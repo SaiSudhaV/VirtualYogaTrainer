@@ -1,8 +1,19 @@
-// Main Yoga Studio Application
+// Main Yoga Studio Application with Enhanced AI Integration
 let poseDetector;
 let yogaTimer;
 let canvas;
 let isSessionActive = false;
+
+// AI Enhancement Components
+let aiCoach;
+let smartSequenceDetector;
+let poseAnalytics;
+let currentSessionData = {
+    startTime: null,
+    poses: [],
+    corrections: [],
+    analytics: []
+};
 
 // Pose descriptions for UI
 const poseDescriptions = {
@@ -47,8 +58,15 @@ function setup() {
     poseDetector = new YogaPoseDetector();
     yogaTimer = new YogaTimer();
     
+    // Initialize AI Enhancement Components
+    aiCoach = new AIYogaCoach();
+    smartSequenceDetector = new SmartSequenceDetector();
+    poseAnalytics = new PoseAnalytics();
+    
     // Initialize pose detection
     poseDetector.initialize();
+    
+    console.log('AI enhancements loaded: Coach, Sequence Detector, Analytics');
     
     // Setup UI
     setupUI();
@@ -68,14 +86,40 @@ function draw() {
         
         // Update timer with pose status
         if (isSessionActive) {
-            yogaTimer.updateWithPoseStatus(
-                poseDetector.isCurrentPoseCorrect(),
-                poseDetector.getPoseAccuracy()
-            );
+            const isCorrect = poseDetector.isCurrentPoseCorrect();
+            const accuracy = poseDetector.getPoseAccuracy();
+            
+            yogaTimer.updateWithPoseStatus(isCorrect, accuracy);
+            
+            // AI Analytics Integration
+            if (poseAnalytics) {
+                const biomechanics = poseAnalytics.analyzeBiomechanics(
+                    poseDetector.poses[0]?.pose?.keypoints || [],
+                    poseDetector.currentTargetPose
+                );
+                
+                const injuryRisk = poseAnalytics.analyzeInjuryRisk(
+                    poseDetector.poses[0]?.pose?.keypoints || [],
+                    poseDetector.currentTargetPose,
+                    yogaTimer.getPoseHoldTime()
+                );
+                
+                updateAnalyticsDisplay(biomechanics, injuryRisk);
+            }
+            
+            // Smart Sequence Integration
+            if (smartSequenceDetector && smartSequenceDetector.isActive()) {
+                const sequenceGuidance = smartSequenceDetector.updateSequence(
+                    poseDetector.currentTargetPose,
+                    accuracy,
+                    isCorrect
+                );
+                updateSequenceDisplay(sequenceGuidance);
+            }
             
             // Check for pose completion
             if (yogaTimer.checkPoseCompletion()) {
-                showPoseCompletionFeedback();
+                handlePoseCompletion(accuracy, poseDetector.poseCorrections);
             }
         }
         
@@ -102,6 +146,22 @@ function setupUI() {
     
     document.getElementById('poseSelect').onchange = (e) => {
         selectPose(parseInt(e.target.value));
+    };
+    
+    // Voice guidance toggle
+    document.getElementById('voiceToggle').onchange = (e) => {
+        if (poseDetector) {
+            poseDetector.voiceEnabled = e.target.checked;
+            if (e.target.checked) {
+                console.log('AI Voice Guidance enabled');
+            } else {
+                console.log('AI Voice Guidance disabled');
+                // Stop any current speech
+                if (poseDetector.speechSynthesis) {
+                    poseDetector.speechSynthesis.cancel();
+                }
+            }
+        }
     };
     
     // Add pose hold progress bar to sidebar
@@ -166,14 +226,30 @@ function startSession() {
         isSessionActive = true;
         yogaTimer.start();
         
+        // Initialize session data
+        currentSessionData = {
+            startTime: Date.now(),
+            poses: [],
+            corrections: [],
+            analytics: []
+        };
+        
         // Update button states
         document.getElementById('startBtn').textContent = 'Resume';
         document.getElementById('pauseBtn').disabled = false;
         
         // Update status
-        document.getElementById('statusDisplay').textContent = 'Session Started - Position Yourself';
+        document.getElementById('statusDisplay').textContent = 'AI Session Started - Position Yourself';
         
-        console.log('Yoga session started');
+        // AI Coach welcome
+        if (aiCoach && poseDetector.voiceEnabled) {
+            const welcomeMessage = "AI Yoga Coach activated. I'll provide personalized guidance throughout your session.";
+            const utterance = new SpeechSynthesisUtterance(welcomeMessage);
+            utterance.rate = 0.8;
+            window.speechSynthesis.speak(utterance);
+        }
+        
+        console.log('Enhanced AI Yoga session started');
     } else {
         yogaTimer.start();
         document.getElementById('startBtn').textContent = 'Resume';
@@ -233,6 +309,30 @@ function displayPoseHoldProgress() {
         const targetTime = yogaTimer.targetHoldTime;
         holdTimeDisplay.textContent = `${currentHoldTime}s / ${targetTime}s`;
     }
+}
+
+function handlePoseCompletion(accuracy, corrections) {
+    // AI Coach feedback
+    if (aiCoach) {
+        const feedback = aiCoach.trackProgress(
+            poseDetector.currentTargetPose,
+            accuracy,
+            yogaTimer.getPoseHoldTime(),
+            corrections
+        );
+        
+        // Store session data
+        currentSessionData.poses.push({
+            pose: poseDetector.currentTargetPose,
+            accuracy: accuracy,
+            holdTime: yogaTimer.getPoseHoldTime(),
+            timestamp: Date.now()
+        });
+        
+        showAIFeedback(feedback);
+    }
+    
+    showPoseCompletionFeedback();
 }
 
 function showPoseCompletionFeedback() {
@@ -343,9 +443,259 @@ window.addEventListener('error', (e) => {
     }
 });
 
+// AI Integration Functions
+function updateAnalyticsDisplay(biomechanics, injuryRisk) {
+    if (!biomechanics || !injuryRisk) return;
+    
+    // Update safety indicators
+    const safetyScore = injuryRisk.safetyScore;
+    let safetyColor = '#4CAF50';
+    if (safetyScore < 70) safetyColor = '#f44336';
+    else if (safetyScore < 85) safetyColor = '#FF9800';
+    
+    // Create or update analytics panel
+    let analyticsPanel = document.getElementById('analyticsPanel');
+    if (!analyticsPanel) {
+        analyticsPanel = createAnalyticsPanel();
+    }
+    
+    // Update analytics content
+    analyticsPanel.innerHTML = `
+        <div style="margin-bottom: 10px;">
+            <strong>🧠 AI Analytics</strong>
+        </div>
+        <div style="font-size: 12px; margin-bottom: 5px;">
+            Safety Score: <span style="color: ${safetyColor}; font-weight: bold;">${safetyScore}%</span>
+        </div>
+        <div style="font-size: 12px; margin-bottom: 5px;">
+            Balance: ${biomechanics.balanceMetrics?.stability || 'Analyzing...'}
+        </div>
+        <div style="font-size: 12px; margin-bottom: 5px;">
+            Stability: ${biomechanics.stabilityIndex || 0}%
+        </div>
+        ${injuryRisk.warnings.length > 0 ? 
+            `<div style="font-size: 11px; color: #FF9800; margin-top: 5px;">
+                ⚠️ ${injuryRisk.warnings[0]}
+            </div>` : ''}
+    `;
+}
+
+function createAnalyticsPanel() {
+    const panel = document.createElement('div');
+    panel.id = 'analyticsPanel';
+    panel.style.cssText = `
+        background: rgba(0, 0, 0, 0.3);
+        padding: 10px;
+        border-radius: 8px;
+        margin: 10px 0;
+        border-left: 4px solid #2196F3;
+        font-size: 12px;
+    `;
+    
+    const sidebar = document.querySelector('.sidebar');
+    const controls = document.querySelector('.controls');
+    sidebar.insertBefore(panel, controls);
+    
+    return panel;
+}
+
+function updateSequenceDisplay(sequenceGuidance) {
+    if (!sequenceGuidance) return;
+    
+    let sequencePanel = document.getElementById('sequencePanel');
+    if (!sequencePanel) {
+        sequencePanel = createSequencePanel();
+    }
+    
+    const progressPercent = sequenceGuidance.progress || 0;
+    const statusIcon = sequenceGuidance.status === 'correct' ? '✅' : 
+                      sequenceGuidance.status === 'adjust' ? '🔄' : '❌';
+    
+    sequencePanel.innerHTML = `
+        <div style="margin-bottom: 10px;">
+            <strong>🔄 Sequence Flow</strong>
+        </div>
+        <div style="font-size: 12px; margin-bottom: 5px;">
+            Step ${sequenceGuidance.currentStep}/${sequenceGuidance.totalSteps}
+        </div>
+        <div class="progress-bar" style="height: 8px; margin: 5px 0;">
+            <div class="progress-fill" style="width: ${progressPercent}%;"></div>
+        </div>
+        <div style="font-size: 11px; margin-bottom: 5px;">
+            ${statusIcon} ${sequenceGuidance.message}
+        </div>
+        ${sequenceGuidance.instruction ? 
+            `<div style="font-size: 10px; color: #ccc; font-style: italic;">
+                ${sequenceGuidance.instruction}
+            </div>` : ''}
+    `;
+}
+
+function createSequencePanel() {
+    const panel = document.createElement('div');
+    panel.id = 'sequencePanel';
+    panel.style.cssText = `
+        background: rgba(0, 0, 0, 0.3);
+        padding: 10px;
+        border-radius: 8px;
+        margin: 10px 0;
+        border-left: 4px solid #9C27B0;
+        font-size: 12px;
+        display: none;
+    `;
+    
+    const sidebar = document.querySelector('.sidebar');
+    const analyticsPanel = document.getElementById('analyticsPanel');
+    if (analyticsPanel) {
+        sidebar.insertBefore(panel, analyticsPanel.nextSibling);
+    } else {
+        const controls = document.querySelector('.controls');
+        sidebar.insertBefore(panel, controls);
+    }
+    
+    return panel;
+}
+
+function showAIFeedback(feedback) {
+    if (!feedback || !poseDetector.voiceEnabled) return;
+    
+    // Show motivational message
+    if (feedback.motivation && window.speechSynthesis) {
+        const utterance = new SpeechSynthesisUtterance(feedback.motivation);
+        utterance.rate = 0.8;
+        utterance.pitch = 1.1;
+        window.speechSynthesis.speak(utterance);
+    }
+    
+    // Update UI with feedback
+    const statusDisplay = document.getElementById('statusDisplay');
+    if (statusDisplay && feedback.overall) {
+        const originalText = statusDisplay.textContent;
+        statusDisplay.textContent = `🤖 AI: ${feedback.overall}`;
+        
+        setTimeout(() => {
+            statusDisplay.textContent = originalText;
+        }, 3000);
+    }
+}
+
+function startSequenceMode() {
+    if (!smartSequenceDetector) return;
+    
+    // Show sequence selection
+    const sequences = smartSequenceDetector.getAvailableSequences();
+    const sequenceKeys = Object.keys(sequences);
+    
+    if (sequenceKeys.length === 0) return;
+    
+    // For demo, start with beginner flow
+    const success = smartSequenceDetector.startSequence('beginner_flow', aiCoach);
+    
+    if (success) {
+        document.getElementById('sequencePanel').style.display = 'block';
+        
+        // Update UI to show sequence mode
+        const statusDisplay = document.getElementById('statusDisplay');
+        statusDisplay.textContent = '🔄 Sequence Mode: Follow the guided flow';
+        
+        console.log('Sequence mode activated');
+    }
+}
+
+function generatePersonalizedSequence() {
+    if (!smartSequenceDetector || !aiCoach) return;
+    
+    const personalizedSeq = smartSequenceDetector.generatePersonalizedSequence(
+        aiCoach, 240, 'balanced'
+    );
+    
+    if (personalizedSeq) {
+        console.log('Generated personalized sequence:', personalizedSeq.sequence.name);
+        
+        // Start the personalized sequence
+        smartSequenceDetector.startSequence(personalizedSeq.id, aiCoach);
+        document.getElementById('sequencePanel').style.display = 'block';
+        
+        // Announce the personalized sequence
+        if (poseDetector.voiceEnabled && window.speechSynthesis) {
+            const message = `I've created a personalized sequence for you: ${personalizedSeq.sequence.name}`;
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.rate = 0.8;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+}
+
+function showProgressAnalytics() {
+    if (!aiCoach) return;
+    
+    const analytics = aiCoach.getProgressAnalytics();
+    
+    // Create analytics modal or panel
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 400px;
+        z-index: 1000;
+        border: 2px solid #4CAF50;
+    `;
+    
+    modal.innerHTML = `
+        <h3>📊 Your Progress Analytics</h3>
+        <div style="margin: 15px 0;">
+            <strong>Total Sessions:</strong> ${analytics.totalSessions}<br>
+            <strong>Average Accuracy:</strong> ${analytics.averageAccuracy.toFixed(1)}%<br>
+            <strong>Current Level:</strong> ${analytics.currentLevel}<br>
+            <strong>Consistency Score:</strong> ${analytics.consistencyScore.toFixed(1)}%
+        </div>
+        ${analytics.strongestPoses.length > 0 ? `
+            <div style="margin: 10px 0;">
+                <strong>💪 Your Strengths:</strong><br>
+                ${analytics.strongestPoses.map(p => `• ${p.name} (${p.accuracy.toFixed(1)}%)`).join('<br>')}
+            </div>
+        ` : ''}
+        ${analytics.improvementAreas.length > 0 ? `
+            <div style="margin: 10px 0;">
+                <strong>🎯 Focus Areas:</strong><br>
+                ${analytics.improvementAreas.map(p => `• ${p.name} (${p.accuracy.toFixed(1)}%)`).join('<br>')}
+            </div>
+        ` : ''}
+        <button onclick="this.parentElement.remove()" style="
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        ">Close</button>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+        if (modal.parentElement) {
+            modal.remove();
+        }
+    }, 10000);
+}
+
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing Yoga Studio...');
+    console.log('DOM loaded, initializing Enhanced AI Yoga Studio...');
+    
+    // Add AI control buttons
+    setTimeout(() => {
+        addAIControlButtons();
+    }, 1000);
     
     // Register service worker for offline functionality
     if ('serviceWorker' in navigator) {
@@ -387,3 +737,23 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(installBtn);
     });
 });
+
+function addAIControlButtons() {
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar) return;
+    
+    const aiControlsDiv = document.createElement('div');
+    aiControlsDiv.innerHTML = `
+        <div style="margin: 15px 0; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 8px; border-left: 4px solid #FF5722;">
+            <div style="margin-bottom: 10px; font-weight: bold;">🤖 AI Features</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <button onclick="startSequenceMode()" class="btn" style="background: #9C27B0; color: white; padding: 6px 12px; font-size: 12px;">Sequence Mode</button>
+                <button onclick="generatePersonalizedSequence()" class="btn" style="background: #FF5722; color: white; padding: 6px 12px; font-size: 12px;">Personal Flow</button>
+                <button onclick="showProgressAnalytics()" class="btn" style="background: #607D8B; color: white; padding: 6px 12px; font-size: 12px;">Analytics</button>
+            </div>
+        </div>
+    `;
+    
+    const controls = document.querySelector('.controls');
+    sidebar.insertBefore(aiControlsDiv, controls);
+}

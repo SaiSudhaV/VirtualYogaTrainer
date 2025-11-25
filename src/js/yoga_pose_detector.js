@@ -1,4 +1,4 @@
-// Enhanced Yoga Pose Detector with Real-time Classification
+// Enhanced Yoga Pose Detector with AI Correction and Voice Guidance
 class YogaPoseDetector {
     constructor() {
         this.poseNet = null;
@@ -7,6 +7,15 @@ class YogaPoseDetector {
         this.isModelReady = false;
         this.canvas = null;
         this.ctx = null;
+        
+        // AI Correction System
+        this.speechSynthesis = window.speechSynthesis;
+        this.lastCorrectionTime = 0;
+        this.correctionCooldown = 3000; // 3 seconds between corrections
+        this.correctPoseFrames = 0;
+        this.requiredCorrectFrames = 30; // 1 second at 30fps
+        this.captureCanvas = null;
+        this.captureContext = null;
         
         // Pose definitions with target angles and thresholds
         this.poseDefinitions = {
@@ -117,6 +126,18 @@ class YogaPoseDetector {
         this.currentTargetPose = 0;
         this.poseAccuracy = 0;
         this.isCorrectPose = false;
+        this.poseCorrections = [];
+        this.voiceEnabled = true;
+        
+        // Initialize capture canvas for dataset storage
+        this.initializeCaptureCanvas();
+    }
+    
+    initializeCaptureCanvas() {
+        this.captureCanvas = document.createElement('canvas');
+        this.captureCanvas.width = 640;
+        this.captureCanvas.height = 480;
+        this.captureContext = this.captureCanvas.getContext('2d');
     }
 
     async initialize() {
@@ -171,7 +192,14 @@ class YogaPoseDetector {
 
         this.poseNet = ml5.poseNet(this.video, options, () => {
             this.isModelReady = true;
-            console.log('PoseNet model loaded successfully!');
+            console.log('AI Yoga Instructor loaded successfully!');
+            
+            // Welcome message
+            if (this.speechSynthesis) {
+                const welcome = new SpeechSynthesisUtterance("Welcome to your AI Yoga Instructor. I will guide you through correct postures.");
+                welcome.rate = 0.8;
+                this.speechSynthesis.speak(welcome);
+            }
         });
 
         this.poseNet.on('pose', (results) => {
@@ -192,8 +220,23 @@ class YogaPoseDetector {
             const targetPose = this.poseDefinitions[this.currentTargetPose];
             this.poseAccuracy = this.calculatePoseAccuracy(currentAngles, targetPose);
             
+            // AI Pose Correction Analysis
+            this.poseCorrections = this.analyzePostureCorrections(keypoints, currentAngles, targetPose);
+            
             // Determine if pose is correct
-            this.isCorrectPose = this.poseAccuracy >= 70; // 70% threshold for correct pose
+            this.isCorrectPose = this.poseAccuracy >= 75; // 75% threshold for correct pose
+            
+            // Handle correct pose detection and dataset storage
+            if (this.isCorrectPose) {
+                this.correctPoseFrames++;
+                if (this.correctPoseFrames >= this.requiredCorrectFrames) {
+                    this.captureCorrectPose();
+                    this.correctPoseFrames = 0;
+                }
+            } else {
+                this.correctPoseFrames = 0;
+                this.provideVoiceCorrection();
+            }
             
             // Update UI
             this.updatePoseStatus();
@@ -292,19 +335,29 @@ class YogaPoseDetector {
         if (accuracyElement && accuracyBar) {
             accuracyElement.textContent = Math.round(this.poseAccuracy) + '%';
             accuracyBar.style.width = this.poseAccuracy + '%';
+            
+            // Color code accuracy bar
+            if (this.poseAccuracy >= 75) {
+                accuracyBar.style.background = 'linear-gradient(90deg, #4CAF50, #8BC34A)';
+            } else if (this.poseAccuracy >= 50) {
+                accuracyBar.style.background = 'linear-gradient(90deg, #FF9800, #FFC107)';
+            } else {
+                accuracyBar.style.background = 'linear-gradient(90deg, #f44336, #FF5722)';
+            }
         }
 
-        // Update status display
+        // Update status display with specific corrections
         const statusElement = document.getElementById('statusDisplay');
         const videoContainer = document.getElementById('videoContainer');
         
         if (statusElement && videoContainer) {
             if (this.isCorrectPose) {
-                statusElement.textContent = '✅ Correct Pose - Hold Position!';
+                statusElement.textContent = '✅ Perfect Pose - Hold Position!';
                 statusElement.className = 'status-display status-correct';
                 videoContainer.className = 'video-container correct';
             } else {
-                statusElement.textContent = '❌ Adjust Your Position';
+                const correction = this.poseCorrections.length > 0 ? this.poseCorrections[0] : 'Adjust Your Position';
+                statusElement.textContent = `❌ ${correction}`;
                 statusElement.className = 'status-display status-incorrect';
                 videoContainer.className = 'video-container incorrect';
             }
@@ -315,33 +368,66 @@ class YogaPoseDetector {
         if (this.poses.length > 0) {
             const pose = this.poses[0].pose;
             
-            // Draw keypoints
-            fill(255, 0, 0);
+            // Draw keypoints with color coding
             noStroke();
             for (let keypoint of pose.keypoints) {
                 if (keypoint.score > 0.2) {
-                    ellipse(keypoint.position.x, keypoint.position.y, 10, 10);
+                    // Color code based on pose correctness
+                    if (this.isCorrectPose) {
+                        fill(76, 175, 80); // Green for correct
+                    } else {
+                        fill(244, 67, 54); // Red for incorrect
+                    }
+                    ellipse(keypoint.position.x, keypoint.position.y, 12, 12);
                 }
             }
             
-            // Draw skeleton
-            stroke(255, 255, 0);
-            strokeWeight(2);
+            // Draw skeleton with color coding
+            strokeWeight(3);
             if (pose.skeleton) {
                 for (let skeleton of pose.skeleton) {
                     const [pointA, pointB] = skeleton;
                     if (pointA.score > 0.2 && pointB.score > 0.2) {
+                        // Color code skeleton based on pose correctness
+                        if (this.isCorrectPose) {
+                            stroke(76, 175, 80, 200); // Green for correct
+                        } else {
+                            stroke(244, 67, 54, 200); // Red for incorrect
+                        }
                         line(pointA.position.x, pointA.position.y, 
                              pointB.position.x, pointB.position.y);
                     }
                 }
             }
+            
+            // Draw pose accuracy overlay
+            this.drawAccuracyOverlay();
         }
+    }
+    
+    drawAccuracyOverlay() {
+        // Draw accuracy percentage on video
+        fill(255, 255, 255, 200);
+        rect(10, 10, 120, 30, 5);
+        
+        if (this.isCorrectPose) {
+            fill(76, 175, 80);
+        } else {
+            fill(244, 67, 54);
+        }
+        
+        textSize(16);
+        textAlign(LEFT, CENTER);
+        text(`${Math.round(this.poseAccuracy)}% Accurate`, 20, 25);
     }
 
     setTargetPose(poseIndex) {
         this.currentTargetPose = poseIndex;
         const pose = this.poseDefinitions[poseIndex];
+        
+        // Reset correction counters
+        this.correctPoseFrames = 0;
+        this.lastCorrectionTime = 0;
         
         // Update UI
         const poseNameElement = document.getElementById('currentPoseName');
@@ -351,6 +437,13 @@ class YogaPoseDetector {
             poseNameElement.textContent = pose.name;
             poseDescElement.textContent = pose.description;
         }
+        
+        // Voice announcement for new pose
+        if (this.voiceEnabled && this.speechSynthesis) {
+            const announcement = new SpeechSynthesisUtterance(`Now practicing ${pose.name}. ${pose.description}`);
+            announcement.rate = 0.8;
+            this.speechSynthesis.speak(announcement);
+        }
     }
 
     getPoseAccuracy() {
@@ -359,5 +452,187 @@ class YogaPoseDetector {
 
     isCurrentPoseCorrect() {
         return this.isCorrectPose;
+    }
+    
+    analyzePostureCorrections(keypoints, currentAngles, targetPose) {
+        const corrections = [];
+        const threshold = targetPose.threshold;
+        
+        // Analyze each body part for specific corrections
+        for (const [angleName, targetAngle] of Object.entries(targetPose.targetAngles)) {
+            if (currentAngles[angleName] !== undefined) {
+                const difference = currentAngles[angleName] - targetAngle;
+                const absDiff = Math.abs(difference);
+                
+                if (absDiff > threshold) {
+                    corrections.push(this.generateSpecificCorrection(angleName, difference, absDiff));
+                }
+            }
+        }
+        
+        // Additional posture checks
+        corrections.push(...this.checkBodyAlignment(keypoints));
+        
+        return corrections.slice(0, 2); // Limit to 2 most important corrections
+    }
+    
+    generateSpecificCorrection(angleName, difference, absDiff) {
+        const corrections = {
+            leftArm: {
+                positive: "Move your left arm closer to your body",
+                negative: "Extend your left arm further out"
+            },
+            rightArm: {
+                positive: "Move your right arm closer to your body", 
+                negative: "Extend your right arm further out"
+            },
+            leftLeg: {
+                positive: "Bend your left leg more",
+                negative: "Straighten your left leg more"
+            },
+            rightLeg: {
+                positive: "Bend your right leg more",
+                negative: "Straighten your right leg more"
+            },
+            torso: {
+                positive: "Lean forward more",
+                negative: "Stand up straighter"
+            }
+        };
+        
+        if (corrections[angleName]) {
+            return difference > 0 ? corrections[angleName].positive : corrections[angleName].negative;
+        }
+        
+        return "Adjust your position";
+    }
+    
+    checkBodyAlignment(keypoints) {
+        const corrections = [];
+        
+        // Check shoulder alignment
+        const leftShoulder = keypoints[5];
+        const rightShoulder = keypoints[6];
+        
+        if (leftShoulder.score > 0.5 && rightShoulder.score > 0.5) {
+            const shoulderDiff = Math.abs(leftShoulder.position.y - rightShoulder.position.y);
+            if (shoulderDiff > 30) {
+                corrections.push("Keep your shoulders level and aligned");
+            }
+        }
+        
+        // Check hip alignment
+        const leftHip = keypoints[11];
+        const rightHip = keypoints[12];
+        
+        if (leftHip.score > 0.5 && rightHip.score > 0.5) {
+            const hipDiff = Math.abs(leftHip.position.y - rightHip.position.y);
+            if (hipDiff > 25) {
+                corrections.push("Align your hips evenly");
+            }
+        }
+        
+        return corrections;
+    }
+    
+    provideVoiceCorrection() {
+        if (!this.voiceEnabled) return;
+        
+        const now = Date.now();
+        if (now - this.lastCorrectionTime < this.correctionCooldown) {
+            return; // Too soon for another correction
+        }
+        
+        if (this.poseCorrections.length > 0 && this.speechSynthesis) {
+            const correction = this.poseCorrections[0];
+            const utterance = new SpeechSynthesisUtterance(correction);
+            utterance.rate = 0.8;
+            utterance.pitch = 1.0;
+            utterance.volume = 0.7;
+            
+            this.speechSynthesis.speak(utterance);
+            this.lastCorrectionTime = now;
+        }
+    }
+    
+    captureCorrectPose() {
+        if (!this.video || !this.captureCanvas) return;
+        
+        // Capture current frame
+        this.captureContext.drawImage(this.video.elt, 0, 0, 640, 480);
+        
+        // Convert to blob and save
+        this.captureCanvas.toBlob((blob) => {
+            this.saveToDataset(blob);
+        }, 'image/jpeg', 0.9);
+        
+        // Visual feedback for capture
+        this.showCaptureEffect();
+    }
+    
+    saveToDataset(blob) {
+        const poseName = this.poseDefinitions[this.currentTargetPose].name.toLowerCase().replace(/\s+/g, '_');
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `correct_${poseName}_${timestamp}.jpg`;
+        
+        // Create download link (browser-based storage)
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        console.log(`Captured correct pose: ${filename}`);
+        
+        // Show notification
+        this.showCaptureNotification(poseName);
+    }
+    
+    showCaptureEffect() {
+        const videoContainer = document.getElementById('videoContainer');
+        if (videoContainer) {
+            videoContainer.style.boxShadow = '0 0 30px #4CAF50';
+            setTimeout(() => {
+                videoContainer.style.boxShadow = '';
+            }, 500);
+        }
+    }
+    
+    showCaptureNotification(poseName) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        `;
+        notification.textContent = `📸 Captured correct ${poseName} pose!`;
+        
+        // Add animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+            style.remove();
+        }, 3000);
     }
 }

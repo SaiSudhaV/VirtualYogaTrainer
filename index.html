@@ -273,6 +273,46 @@
             width: 0%;
             transition: width 0.3s ease;
         }
+        
+        .ai-controls {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .ai-controls label {
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .ai-controls input[type="checkbox"] {
+            accent-color: #2196F3;
+        }
+        
+        /* Enhanced visual feedback */
+        .video-container.correct {
+            border: 5px solid #4CAF50;
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.6);
+            animation: correctPulse 2s ease-in-out infinite;
+        }
+        
+        .video-container.incorrect {
+            border: 5px solid #f44336;
+            box-shadow: 0 0 30px rgba(244, 67, 54, 0.6);
+            animation: incorrectShake 0.5s ease-in-out;
+        }
+        
+        @keyframes correctPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(76, 175, 80, 0.6); }
+            50% { box-shadow: 0 0 50px rgba(76, 175, 80, 0.8); }
+        }
+        
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
     </style>
 </head>
 <body>
@@ -317,6 +357,16 @@
                 <button class="btn btn-secondary" id="pauseBtn">Pause</button>
                 <button class="btn btn-danger" id="resetBtn">Reset</button>
             </div>
+            
+            <div class="ai-controls" style="margin: 15px 0;">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="voiceToggle" checked style="transform: scale(1.2);">
+                    <span>🔊 AI Voice Guidance</span>
+                </label>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
+                    📸 Correct poses auto-saved to downloads
+                </div>
+            </div>
 
             <ul class="pose-list" id="poseList">
                 <!-- Pose list will be populated by JavaScript -->
@@ -333,6 +383,9 @@
     <script src="src/js/device_compatibility.js"></script>
     <script src="src/js/yoga_pose_detector.js"></script>
     <script src="src/js/yoga_timer.js"></script>
+    <script src="src/js/ai_coach.js"></script>
+    <script src="src/js/smart_sequence_detector.js"></script>
+    <script src="src/js/pose_analytics.js"></script>
     <script src="src/js/yoga_studio_app.js"></script>
 </body>
 </html>
