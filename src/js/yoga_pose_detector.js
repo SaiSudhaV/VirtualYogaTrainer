@@ -1,4 +1,4 @@
-// Enhanced Yoga Pose Detector with AI Correction and Voice Guidance
+// Enhanced Yoga Pose Detector with 12 Poses and Webcam Fix
 class YogaPoseDetector {
     constructor() {
         this.poseNet = null;
@@ -11,115 +11,85 @@ class YogaPoseDetector {
         // AI Correction System
         this.speechSynthesis = window.speechSynthesis;
         this.lastCorrectionTime = 0;
-        this.correctionCooldown = 3000; // 3 seconds between corrections
+        this.correctionCooldown = 3000;
         this.correctPoseFrames = 0;
-        this.requiredCorrectFrames = 30; // 1 second at 30fps
+        this.requiredCorrectFrames = 30;
         this.captureCanvas = null;
         this.captureContext = null;
         
-        // Pose definitions with target angles and thresholds
+        // 12 Pose definitions for Sun Salutation
         this.poseDefinitions = {
-            0: { // Pranamasana (Prayer)
+            0: { // Pranamasana
                 name: "Pranamasana",
                 description: "Stand with palms together in prayer position at chest level.",
-                targetAngles: {
-                    leftArm: 90,
-                    rightArm: 90,
-                    leftLeg: 180,
-                    rightLeg: 180
-                },
+                targetAngles: { leftArm: 90, rightArm: 90, leftLeg: 180, rightLeg: 180 },
                 threshold: 25
             },
-            1: { // Hastauttanasana (Raised Arms)
-                name: "Hastauttanasana",
+            1: { // Hasta Uttanasana
+                name: "Hasta Uttanasana", 
                 description: "Raise both arms overhead, palms facing each other.",
-                targetAngles: {
-                    leftArm: 180,
-                    rightArm: 180,
-                    leftLeg: 180,
-                    rightLeg: 180
-                },
+                targetAngles: { leftArm: 180, rightArm: 180, leftLeg: 180, rightLeg: 180 },
                 threshold: 30
             },
-            2: { // Hastapadasana (Forward Bend)
-                name: "Hastapadasana",
+            2: { // Pada Hastasana
+                name: "Pada Hastasana",
                 description: "Bend forward, hands reaching toward feet.",
-                targetAngles: {
-                    leftArm: 45,
-                    rightArm: 45,
-                    torso: 45
-                },
+                targetAngles: { leftArm: 45, rightArm: 45, torso: 45 },
                 threshold: 35
             },
-            3: { // Ashwa Sanchalanasana (Low Lunge)
+            3: { // Ashwa Sanchalanasana
                 name: "Ashwa Sanchalanasana",
                 description: "Step back into low lunge, hands on ground.",
-                targetAngles: {
-                    leftLeg: 90,
-                    rightLeg: 160
-                },
+                targetAngles: { leftLeg: 90, rightLeg: 160 },
                 threshold: 40
             },
-            4: { // Dandasana (Staff Pose)
-                name: "Dandasana",
-                description: "Sit with legs extended, spine straight, hands beside hips.",
-                targetAngles: {
-                    leftLeg: 180,
-                    rightLeg: 180,
-                    torso: 90
-                },
-                threshold: 25
+            4: { // Parvatasana
+                name: "Parvatasana",
+                description: "Form inverted V-shape, hands and feet on ground.",
+                targetAngles: { leftArm: 45, rightArm: 45, leftLeg: 45, rightLeg: 45 },
+                threshold: 35
             },
-            5: { // Ashtanga Namaskara (Eight-Limbed)
+            5: { // Ashtanga Namaskara
                 name: "Ashtanga Namaskara",
                 description: "Lower knees, chest, and chin to ground.",
-                targetAngles: {
-                    leftArm: 45,
-                    rightArm: 45
-                },
+                targetAngles: { leftArm: 45, rightArm: 45 },
                 threshold: 35
             },
-            6: { // Bhujangasana (Cobra)
+            6: { // Bhujangasana
                 name: "Bhujangasana",
                 description: "Lie on stomach, lift chest with arms support.",
-                targetAngles: {
-                    leftArm: 120,
-                    rightArm: 120,
-                    torso: 45
-                },
+                targetAngles: { leftArm: 120, rightArm: 120, torso: 45 },
                 threshold: 30
             },
-            7: { // Adho Mukha Svanasana (Downward Dog)
-                name: "Adho Mukha Svanasana",
+            7: { // Parvatasana (repeat)
+                name: "Parvatasana",
                 description: "Form inverted V-shape, hands and feet on ground.",
-                targetAngles: {
-                    leftArm: 45,
-                    rightArm: 45,
-                    leftLeg: 45,
-                    rightLeg: 45
-                },
+                targetAngles: { leftArm: 45, rightArm: 45, leftLeg: 45, rightLeg: 45 },
                 threshold: 35
             },
-            8: { // Padmasana (Lotus)
-                name: "Padmasana",
-                description: "Sit cross-legged, feet on opposite thighs.",
-                targetAngles: {
-                    leftLeg: 90,
-                    rightLeg: 90,
-                    torso: 90
-                },
+            8: { // Ashwa Sanchalanasana (repeat)
+                name: "Ashwa Sanchalanasana",
+                description: "Step back into low lunge, hands on ground.",
+                targetAngles: { leftLeg: 90, rightLeg: 160 },
+                threshold: 40
+            },
+            9: { // Pada Hastasana (repeat)
+                name: "Pada Hastasana",
+                description: "Bend forward, hands reaching toward feet.",
+                targetAngles: { leftArm: 45, rightArm: 45, torso: 45 },
+                threshold: 35
+            },
+            10: { // Hasta Uttanasana (repeat)
+                name: "Hasta Uttanasana",
+                description: "Raise both arms overhead, palms facing each other.",
+                targetAngles: { leftArm: 180, rightArm: 180, leftLeg: 180, rightLeg: 180 },
                 threshold: 30
             },
-            9: { // Tadasana (Mountain)
-                name: "Tadasana",
-                description: "Stand tall, arms at sides, body aligned.",
-                targetAngles: {
-                    leftArm: 180,
-                    rightArm: 180,
-                    leftLeg: 180,
-                    rightLeg: 180
-                },
-                threshold: 20
+            11: { // Pranamasana (repeat)
+                name: "Pranamasana",
+                description: "Stand with palms together in prayer position at chest level.",
+                targetAngles: { leftArm: 90, rightArm: 90, leftLeg: 180, rightLeg: 180 },
+                threshold: 25
             }
         };
         
@@ -129,7 +99,6 @@ class YogaPoseDetector {
         this.poseCorrections = [];
         this.voiceEnabled = true;
         
-        // Initialize capture canvas for dataset storage
         this.initializeCaptureCanvas();
     }
     
@@ -141,71 +110,127 @@ class YogaPoseDetector {
     }
 
     async initialize() {
-        // Get optimal constraints for device
-        const constraints = deviceCompatibility ? deviceCompatibility.cameraConstraints : {
-            video: { width: 640, height: 480, facingMode: 'user' },
-            audio: false
-        };
-
-        // Create video capture with device-specific settings
-        this.video = createCapture(constraints.video);
-        
-        // Adjust size based on device
-        if (deviceCompatibility && deviceCompatibility.isMobile) {
-            this.video.size(480, 360);
-        } else {
-            this.video.size(640, 480);
-        }
-        
-        this.video.hide();
-
-        // Initialize PoseNet with device-optimized settings
-        let options = {
-            architecture: 'MobileNetV1',
-            imageScaleFactor: 0.3,
-            outputStride: 16,
-            flipHorizontal: true,
-            minConfidence: 0.5,
-            maxPoseDetections: 1,
-            scoreThreshold: 0.5,
-            nmsRadius: 20,
-            detectionType: 'single',
-            inputResolution: 513,
-            multiplier: 0.75,
-            quantBytes: 2
-        };
-
-        // Optimize for device performance
-        if (deviceCompatibility) {
-            if (deviceCompatibility.performanceLevel === 'low' || deviceCompatibility.isMobile) {
-                options.imageScaleFactor = 0.5;
-                options.outputStride = 32;
-                options.inputResolution = 257;
-                options.multiplier = 0.5;
-            } else if (deviceCompatibility.performanceLevel === 'high') {
-                options.imageScaleFactor = 0.2;
-                options.outputStride = 8;
-                options.inputResolution = 641;
-                options.multiplier = 1.0;
-            }
-        }
-
-        this.poseNet = ml5.poseNet(this.video, options, () => {
-            this.isModelReady = true;
-            console.log('AI Yoga Instructor loaded successfully!');
+        try {
+            console.log('Initializing webcam and pose detection...');
             
-            // Welcome message
-            if (this.speechSynthesis) {
-                const welcome = new SpeechSynthesisUtterance("Welcome to your AI Yoga Instructor. I will guide you through correct postures.");
-                welcome.rate = 0.8;
-                this.speechSynthesis.speak(welcome);
+            // Request camera permissions first
+            await this.requestCameraPermission();
+            
+            // Create video capture
+            this.video = createCapture(VIDEO, () => {
+                console.log('Webcam initialized successfully');
+            });
+            
+            this.video.size(640, 480);
+            this.video.hide();
+            
+            // Wait for ml5 and initialize PoseNet
+            await this.initializePoseNet();
+            
+        } catch (error) {
+            console.error('Initialization failed:', error);
+            this.handleInitializationError(error);
+        }
+    }
+    
+    async requestCameraPermission() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { width: 640, height: 480, facingMode: 'user' },
+                audio: false
+            });
+            
+            // Stop the stream immediately as we just needed permission
+            stream.getTracks().forEach(track => track.stop());
+            console.log('Camera permission granted');
+            
+        } catch (error) {
+            throw new Error('Camera access denied. Please allow camera permissions.');
+        }
+    }
+    
+    async initializePoseNet() {
+        return new Promise((resolve, reject) => {
+            if (typeof ml5 === 'undefined') {
+                reject(new Error('ml5.js library not loaded'));
+                return;
             }
+            
+            const options = {
+                architecture: 'MobileNetV1',
+                imageScaleFactor: 0.3,
+                outputStride: 16,
+                flipHorizontal: true,
+                minConfidence: 0.5,
+                maxPoseDetections: 1,
+                scoreThreshold: 0.5,
+                nmsRadius: 20,
+                detectionType: 'single',
+                inputResolution: 513,
+                multiplier: 0.75,
+                quantBytes: 2
+            };
+            
+            this.poseNet = ml5.poseNet(this.video, options, () => {
+                this.isModelReady = true;
+                console.log('PoseNet model loaded successfully');
+                
+                if (this.voiceEnabled) {
+                    this.speak('Yoga pose detection ready. Position yourself in front of the camera.');
+                }
+                
+                resolve();
+            });
+            
+            this.poseNet.on('pose', (results) => {
+                this.poses = results;
+                this.analyzePose();
+            });
         });
-
-        this.poseNet.on('pose', (results) => {
-            this.poses = results;
-            this.analyzePose();
-        });
+    }
+    
+    handleInitializationError(error) {
+        const statusDisplay = document.getElementById('statusDisplay');
+        if (statusDisplay) {
+            if (error.message.includes('Camera') || error.message.includes('denied')) {
+                statusDisplay.innerHTML = `
+                    📷 Camera access required<br>
+                    <small>Please allow camera permissions and refresh</small>
+                `;
+            } else {
+                statusDisplay.textContent = '⚠️ Initialization failed. Please refresh the page.';
+            }
+            statusDisplay.className = 'status-display status-incorrect';
+        }
+        
+        this.showCameraInstructions();
+    }
+    
+    showCameraInstructions() {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9); color: white; padding: 30px;
+            border-radius: 15px; text-align: center; z-index: 1000;
+            border: 2px solid #f44336; max-width: 400px;
+        `;
+        
+        modal.innerHTML = `
+            <h3 style="color: #f44336; margin-bottom: 20px;">📷 Camera Access Required</h3>
+            <p style="margin-bottom: 15px;">To use yoga pose detection:</p>
+            <ol style="text-align: left; margin-bottom: 20px;">
+                <li>Click the camera icon in your browser address bar</li>
+                <li>Select "Allow" for camera access</li>
+                <li>Refresh the page</li>
+            </ol>
+            <button onclick="location.reload()" style="
+                background: #4CAF50; color: white; border: none;
+                padding: 12px 24px; border-radius: 25px; cursor: pointer;
+                font-size: 16px; font-weight: bold;
+            ">Refresh Page</button>
+        `;
+        
+        document.body.appendChild(modal);
     }
 
     analyzePose() {
@@ -213,20 +238,13 @@ class YogaPoseDetector {
             const pose = this.poses[0].pose;
             const keypoints = pose.keypoints;
             
-            // Calculate current pose angles
             const currentAngles = this.calculatePoseAngles(keypoints);
-            
-            // Compare with target pose
             const targetPose = this.poseDefinitions[this.currentTargetPose];
             this.poseAccuracy = this.calculatePoseAccuracy(currentAngles, targetPose);
             
-            // AI Pose Correction Analysis
             this.poseCorrections = this.analyzePostureCorrections(keypoints, currentAngles, targetPose);
+            this.isCorrectPose = this.poseAccuracy >= 75;
             
-            // Determine if pose is correct
-            this.isCorrectPose = this.poseAccuracy >= 75; // 75% threshold for correct pose
-            
-            // Handle correct pose detection and dataset storage
             if (this.isCorrectPose) {
                 this.correctPoseFrames++;
                 if (this.correctPoseFrames >= this.requiredCorrectFrames) {
@@ -238,7 +256,6 @@ class YogaPoseDetector {
                 this.provideVoiceCorrection();
             }
             
-            // Update UI
             this.updatePoseStatus();
         }
     }
@@ -246,7 +263,6 @@ class YogaPoseDetector {
     calculatePoseAngles(keypoints) {
         const angles = {};
         
-        // Get key points
         const nose = keypoints[0];
         const leftShoulder = keypoints[5];
         const rightShoulder = keypoints[6];
@@ -261,7 +277,6 @@ class YogaPoseDetector {
         const leftAnkle = keypoints[15];
         const rightAnkle = keypoints[16];
 
-        // Calculate arm angles
         if (leftShoulder.score > 0.5 && leftElbow.score > 0.5 && leftWrist.score > 0.5) {
             angles.leftArm = this.calculateAngle(
                 leftShoulder.position, leftElbow.position, leftWrist.position
@@ -274,7 +289,6 @@ class YogaPoseDetector {
             );
         }
 
-        // Calculate leg angles
         if (leftHip.score > 0.5 && leftKnee.score > 0.5 && leftAnkle.score > 0.5) {
             angles.leftLeg = this.calculateAngle(
                 leftHip.position, leftKnee.position, leftAnkle.position
@@ -287,7 +301,6 @@ class YogaPoseDetector {
             );
         }
 
-        // Calculate torso angle
         if (nose.score > 0.5 && leftHip.score > 0.5 && rightHip.score > 0.5) {
             const hipCenter = {
                 x: (leftHip.position.x + rightHip.position.x) / 2,
@@ -328,7 +341,6 @@ class YogaPoseDetector {
     }
 
     updatePoseStatus() {
-        // Update accuracy display
         const accuracyElement = document.getElementById('accuracyValue');
         const accuracyBar = document.getElementById('accuracyBar');
         
@@ -336,7 +348,6 @@ class YogaPoseDetector {
             accuracyElement.textContent = Math.round(this.poseAccuracy) + '%';
             accuracyBar.style.width = this.poseAccuracy + '%';
             
-            // Color code accuracy bar
             if (this.poseAccuracy >= 75) {
                 accuracyBar.style.background = 'linear-gradient(90deg, #4CAF50, #8BC34A)';
             } else if (this.poseAccuracy >= 50) {
@@ -346,7 +357,6 @@ class YogaPoseDetector {
             }
         }
 
-        // Update status display with specific corrections
         const statusElement = document.getElementById('statusDisplay');
         const videoContainer = document.getElementById('videoContainer');
         
@@ -368,31 +378,27 @@ class YogaPoseDetector {
         if (this.poses.length > 0) {
             const pose = this.poses[0].pose;
             
-            // Draw keypoints with color coding
             noStroke();
             for (let keypoint of pose.keypoints) {
                 if (keypoint.score > 0.2) {
-                    // Color code based on pose correctness
                     if (this.isCorrectPose) {
-                        fill(76, 175, 80); // Green for correct
+                        fill(76, 175, 80);
                     } else {
-                        fill(244, 67, 54); // Red for incorrect
+                        fill(244, 67, 54);
                     }
                     ellipse(keypoint.position.x, keypoint.position.y, 12, 12);
                 }
             }
             
-            // Draw skeleton with color coding
             strokeWeight(3);
             if (pose.skeleton) {
                 for (let skeleton of pose.skeleton) {
                     const [pointA, pointB] = skeleton;
                     if (pointA.score > 0.2 && pointB.score > 0.2) {
-                        // Color code skeleton based on pose correctness
                         if (this.isCorrectPose) {
-                            stroke(76, 175, 80, 200); // Green for correct
+                            stroke(76, 175, 80, 200);
                         } else {
-                            stroke(244, 67, 54, 200); // Red for incorrect
+                            stroke(244, 67, 54, 200);
                         }
                         line(pointA.position.x, pointA.position.y, 
                              pointB.position.x, pointB.position.y);
@@ -400,13 +406,11 @@ class YogaPoseDetector {
                 }
             }
             
-            // Draw pose accuracy overlay
             this.drawAccuracyOverlay();
         }
     }
     
     drawAccuracyOverlay() {
-        // Draw accuracy percentage on video
         fill(255, 255, 255, 200);
         rect(10, 10, 120, 30, 5);
         
@@ -425,24 +429,13 @@ class YogaPoseDetector {
         this.currentTargetPose = poseIndex;
         const pose = this.poseDefinitions[poseIndex];
         
-        // Reset correction counters
         this.correctPoseFrames = 0;
         this.lastCorrectionTime = 0;
         
-        // Update UI
-        const poseNameElement = document.getElementById('currentPoseName');
-        const poseDescElement = document.getElementById('poseDescription');
+        console.log(`Target pose set to: ${pose.name} (${poseIndex})`);
         
-        if (poseNameElement && poseDescElement) {
-            poseNameElement.textContent = pose.name;
-            poseDescElement.textContent = pose.description;
-        }
-        
-        // Voice announcement for new pose
-        if (this.voiceEnabled && this.speechSynthesis) {
-            const announcement = new SpeechSynthesisUtterance(`Now practicing ${pose.name}. ${pose.description}`);
-            announcement.rate = 0.8;
-            this.speechSynthesis.speak(announcement);
+        if (this.voiceEnabled) {
+            this.speak(`Now practicing ${pose.name}. ${pose.description}`);
         }
     }
 
@@ -458,25 +451,22 @@ class YogaPoseDetector {
         const corrections = [];
         const threshold = targetPose.threshold;
         
-        // Analyze each body part for specific corrections
         for (const [angleName, targetAngle] of Object.entries(targetPose.targetAngles)) {
             if (currentAngles[angleName] !== undefined) {
                 const difference = currentAngles[angleName] - targetAngle;
                 const absDiff = Math.abs(difference);
                 
                 if (absDiff > threshold) {
-                    corrections.push(this.generateSpecificCorrection(angleName, difference, absDiff));
+                    corrections.push(this.generateSpecificCorrection(angleName, difference));
                 }
             }
         }
         
-        // Additional posture checks
         corrections.push(...this.checkBodyAlignment(keypoints));
-        
-        return corrections.slice(0, 2); // Limit to 2 most important corrections
+        return corrections.slice(0, 2);
     }
     
-    generateSpecificCorrection(angleName, difference, absDiff) {
+    generateSpecificCorrection(angleName, difference) {
         const corrections = {
             leftArm: {
                 positive: "Move your left arm closer to your body",
@@ -510,7 +500,6 @@ class YogaPoseDetector {
     checkBodyAlignment(keypoints) {
         const corrections = [];
         
-        // Check shoulder alignment
         const leftShoulder = keypoints[5];
         const rightShoulder = keypoints[6];
         
@@ -521,7 +510,6 @@ class YogaPoseDetector {
             }
         }
         
-        // Check hip alignment
         const leftHip = keypoints[11];
         const rightHip = keypoints[12];
         
@@ -540,42 +528,42 @@ class YogaPoseDetector {
         
         const now = Date.now();
         if (now - this.lastCorrectionTime < this.correctionCooldown) {
-            return; // Too soon for another correction
+            return;
         }
         
-        if (this.poseCorrections.length > 0 && this.speechSynthesis) {
-            const correction = this.poseCorrections[0];
-            const utterance = new SpeechSynthesisUtterance(correction);
+        if (this.poseCorrections.length > 0) {
+            this.speak(this.poseCorrections[0]);
+            this.lastCorrectionTime = now;
+        }
+    }
+    
+    speak(message) {
+        if (this.speechSynthesis && this.voiceEnabled) {
+            const utterance = new SpeechSynthesisUtterance(message);
             utterance.rate = 0.8;
             utterance.pitch = 1.0;
             utterance.volume = 0.7;
-            
             this.speechSynthesis.speak(utterance);
-            this.lastCorrectionTime = now;
         }
     }
     
     captureCorrectPose() {
         if (!this.video || !this.captureCanvas) return;
         
-        // Capture current frame
         this.captureContext.drawImage(this.video.elt, 0, 0, 640, 480);
         
-        // Convert to blob and save
         this.captureCanvas.toBlob((blob) => {
             this.saveToDataset(blob);
         }, 'image/jpeg', 0.9);
         
-        // Visual feedback for capture
         this.showCaptureEffect();
     }
     
     saveToDataset(blob) {
         const poseName = this.poseDefinitions[this.currentTargetPose].name.toLowerCase().replace(/\s+/g, '_');
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const filename = `correct_${poseName}_${timestamp}.jpg`;
+        const filename = `training_${poseName}_${timestamp}.jpg`;
         
-        // Create download link (browser-based storage)
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -586,9 +574,7 @@ class YogaPoseDetector {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        console.log(`Captured correct pose: ${filename}`);
-        
-        // Show notification
+        console.log(`Captured training image: ${filename}`);
         this.showCaptureNotification(poseName);
     }
     
@@ -605,34 +591,31 @@ class YogaPoseDetector {
     showCaptureNotification(poseName) {
         const notification = document.createElement('div');
         notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            z-index: 1000;
+            position: fixed; top: 20px; right: 20px;
+            background: #4CAF50; color: white; padding: 15px 20px;
+            border-radius: 8px; font-weight: bold; z-index: 1000;
             animation: slideIn 0.3s ease-out;
         `;
-        notification.textContent = `📸 Captured correct ${poseName} pose!`;
+        notification.textContent = `📸 Training image captured: ${poseName}`;
         
-        // Add animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-        `;
-        document.head.appendChild(style);
+        if (!document.getElementById('captureStyles')) {
+            const style = document.createElement('style');
+            style.id = 'captureStyles';
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
         
         document.body.appendChild(notification);
         
         setTimeout(() => {
-            notification.remove();
-            style.remove();
+            if (notification.parentNode) {
+                notification.remove();
+            }
         }, 3000);
     }
 }

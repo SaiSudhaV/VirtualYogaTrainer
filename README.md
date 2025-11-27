@@ -1,59 +1,80 @@
 # 🧘 AI-Enhanced Real-Time Virtual Yoga Studio
 
-A cutting-edge web-based yoga pose detection system powered by advanced AI, using PoseNet and TensorFlow.js for intelligent real-time pose analysis, personalized coaching, and comprehensive training sessions.
+A cutting-edge web-based yoga pose detection system powered by advanced AI, using PoseNet and TensorFlow.js for intelligent real-time pose analysis, personalized coaching, and comprehensive training sessions with **12 Sun Salutation poses**.
 
-## 🚀 Enhanced AI Features
+## 🚀 Enhanced Features
 
-### 🤖 AI Yoga Coach
-- **Intelligent Progress Tracking**: Advanced analytics track your improvement over time
-- **Personalized Recommendations**: AI analyzes your performance patterns and suggests focus areas
-- **Adaptive Difficulty**: System automatically adjusts to your skill level (beginner/intermediate/advanced)
-- **Smart Motivation**: Context-aware motivational messages based on your progress
-- **Performance Insights**: Detailed metrics on accuracy, consistency, and improvement trends
-
-### 🔄 Smart Sequence Detection
-- **Guided Yoga Flows**: Pre-built sequences like Sun Salutation with intelligent transitions
-- **Personalized Sequences**: AI generates custom flows based on your strengths and weaknesses
-- **Real-time Flow Guidance**: Voice and visual cues for smooth pose transitions
-- **Adaptive Sequencing**: Sequences adjust based on your performance and preferences
-- **Multiple Difficulty Levels**: Beginner flows to advanced strength-building sequences
-
-### 📊 Advanced Pose Analytics
-- **Biomechanical Analysis**: Real-time joint angle calculations and muscle activation estimates
-- **Injury Prevention**: AI monitors for risky positions and provides safety warnings
-- **Balance & Stability Metrics**: Comprehensive analysis of your stability and alignment
-- **Performance Efficiency**: Measures how well you execute poses with minimal effort
-- **Historical Trends**: Track your progress across multiple sessions with detailed analytics
-
-### 🎯 Core Features
-- **Real-time Pose Detection**: 10 yoga poses with AI-enhanced accuracy feedback
-- **Interactive Timer**: Automatic timing based on pose correctness
-- **Cross-Platform**: Desktop, tablet, and mobile support with responsive AI
-- **PWA Support**: Install as native app with offline AI capabilities
-- **Voice Guidance**: AI-powered voice coaching and corrections
-- **Auto-Capture**: Automatically saves images of correct poses for progress tracking
-
-## Supported Poses
-
+### 🎯 12-Pose Sun Salutation Sequence
+Complete traditional Sun Salutation (Surya Namaskara) with:
 1. **Pranamasana** (Prayer Pose)
-2. **Hastauttanasana** (Raised Arms Pose)
-3. **Hastapadasana** (Standing Forward Bend)
+2. **Hasta Uttanasana** (Raised Arms Pose) 
+3. **Pada Hastasana** (Standing Forward Bend)
 4. **Ashwa Sanchalanasana** (Low Lunge)
-5. **Dandasana** (Staff Pose)
+5. **Parvatasana** (Mountain Pose/Downward Dog)
 6. **Ashtanga Namaskara** (Eight-Limbed Pose)
 7. **Bhujangasana** (Cobra Pose)
-8. **Adho Mukha Svanasana** (Downward Dog)
-9. **Padmasana** (Lotus Pose)
-10. **Tadasana** (Mountain Pose)
+8. **Parvatasana** (Mountain Pose/Downward Dog)
+9. **Ashwa Sanchalanasana** (Low Lunge)
+10. **Pada Hastasana** (Standing Forward Bend)
+11. **Hasta Uttanasana** (Raised Arms Pose)
+12. **Pranamasana** (Prayer Pose)
 
-## 🚀 How to Run the Project
+### 🤖 AI Yoga Coach
+- **Real-time Pose Correction**: Intelligent voice guidance for proper alignment
+- **Accuracy Tracking**: Live percentage feedback on pose correctness
+- **Personalized Instructions**: AI analyzes your form and provides specific corrections
+- **Progress Monitoring**: Track improvement across multiple sessions
+- **Voice Guidance**: Optional audio coaching with pose instructions
+
+### 📚 Dual Learning Modes
+- **Learn Mode**: 30-second timer per pose for beginners
+- **Practice Mode**: 60-second timer per pose for advanced practitioners
+- **Interactive Pose Gallery**: Visual reference with SVG illustrations
+- **Sequential Practice**: Complete the full Sun Salutation sequence
+
+### 📊 Advanced Analytics
+- **Biomechanical Analysis**: Real-time joint angle calculations
+- **Pose Accuracy Metrics**: Detailed scoring system (75%+ threshold for correct poses)
+- **Training Data Collection**: Automatic capture of correct poses for dataset building
+- **Performance Insights**: Session completion tracking and progress analytics
+
+### 🎯 Core Features
+- **Real-time Pose Detection**: 12 yoga poses with AI-enhanced accuracy feedback
+- **Webcam Integration**: Secure camera access with permission handling
+- **Cross-Platform**: Desktop, tablet, and mobile support with responsive design
+- **PWA Support**: Install as native app with offline capabilities
+- **Auto-Capture**: Automatically saves correct poses for training purposes
+- **Manual Capture**: Button to manually capture training images
+
+## 🛠️ Technical Stack
+
+### Frontend Technologies
+- **HTML5/CSS3**: Modern responsive design with gradient backgrounds
+- **JavaScript ES6+**: Modular architecture with class-based components
+- **p5.js**: Canvas rendering and video capture
+- **ml5.js v0.12.2**: PoseNet integration for pose detection
+
+### AI/ML Components
+- **TensorFlow.js**: Client-side machine learning
+- **PoseNet MobileNetV1**: Lightweight pose estimation model
+- **Real-time Analysis**: 15-30 FPS pose detection and correction
+- **Voice Synthesis**: Browser-based text-to-speech for guidance
+
+### Performance Optimizations
+- **Device-Adaptive Settings**: Automatic optimization for mobile/desktop
+- **Efficient Rendering**: Optimized canvas operations
+- **Memory Management**: Proper cleanup and resource management
+- **Error Handling**: Graceful fallbacks for camera/AI failures
+
+## 🚀 Quick Start Guide
 
 ### Prerequisites
-- Modern web browser (Chrome recommended for best AI performance)
+- Modern web browser (Chrome 80+ recommended for best performance)
 - Webcam access
 - Local server (Python 3.6+, Node.js 12+, or VS Code Live Server)
+- Stable internet connection for initial AI model loading
 
-### Quick Start
+### Installation & Setup
 
 1. **Clone/Download the project**
    ```bash
@@ -65,7 +86,7 @@ A cutting-edge web-based yoga pose detection system powered by advanced AI, usin
 
    **Method 1: Python Server**
    ```bash
-   python -m http.server 8000
+   python3 -m http.server 8000
    ```
    Then open: http://localhost:8000
 
@@ -84,78 +105,70 @@ A cutting-edge web-based yoga pose detection system powered by advanced AI, usin
 4. **Start practicing** with AI-enhanced yoga coaching!
 
 ### First Time Setup
-1. Position yourself 3-6 feet from camera
-2. Ensure good lighting and plain background
-3. Click "Start Session" to activate AI coaching
-4. Try "Sequence Mode" for guided flows
-5. Use "Analytics" to track your progress
+1. **Camera Setup**: Position yourself 3-6 feet from camera
+2. **Lighting**: Ensure good ambient lighting and plain background
+3. **Choose Mode**: Select "Learn" (30s) or "Practice" (60s) mode
+4. **Select Pose**: Choose from 12 Sun Salutation poses
+5. **Start Session**: Click "Start Practice" to begin AI coaching
 
 ## 💡 Usage Guide
 
-### Basic Usage
-1. **Allow camera access** when prompted
-2. **Select pose** from dropdown menu or use AI sequence mode
-3. **Position yourself** 3-6 feet from camera
-4. **Click "Start Session"** to activate AI coaching
-5. **Follow AI guidance** - real-time voice and visual feedback
-6. **Watch AI analytics** - live biomechanical analysis
+### Learn Tab
+- **Pose Gallery**: Visual grid of all 12 poses with SVG illustrations
+- **Pose Selection**: Click any pose card to switch to Practice mode
+- **Reference Images**: High-quality SVG graphics for proper form guidance
 
-### AI-Enhanced Controls
-- **Start/Resume**: Begin AI-coached session
-- **Pause**: Pause with AI progress saving
-- **Reset**: Reset with AI data retention
-- **Sequence Mode**: Start guided AI flows
-- **Personal Flow**: Generate custom AI sequences
-- **Analytics**: View AI progress insights
+### Practice Tab
+- **Live Video Feed**: Real-time webcam with pose overlay
+- **AI Feedback**: Instant accuracy percentage and corrections
+- **Timer Modes**: 30-second (Learn) or 60-second (Practice) sessions
+- **Voice Guidance**: Optional audio coaching and corrections
+- **Progress Tracking**: Session completion and pose accuracy metrics
 
-### AI Features in Action
-- **🔊 Voice Guidance**: Real-time AI corrections and encouragement
-- **📊 Live Analytics**: Biomechanical analysis during practice
-- **⚠️ Safety Monitoring**: AI injury prevention warnings
-- **📸 Auto-Capture**: AI saves perfect poses automatically
-- **🎯 Progress Tracking**: AI tracks improvement over time
+### Controls & Features
+- **🎯 Start Practice**: Begin AI-coached session with selected pose
+- **⏸️ Pause/Resume**: Pause session while maintaining progress
+- **🔄 Reset**: Reset session and return to starting state
+- **🔊 Voice Toggle**: Enable/disable AI voice guidance
+- **📸 Manual Capture**: Capture current pose for training dataset
+- **📊 Progress Bar**: Visual session completion tracking
 
-## Setup Requirements
+## 🎯 AI Features in Action
 
-### Optimal Setup for AI
+### Real-time Corrections
+- **Pose Analysis**: "Move your left arm closer to your body"
+- **Alignment Feedback**: "Keep your shoulders level and aligned"
+- **Accuracy Scoring**: Live percentage display (75%+ for correct poses)
+- **Visual Indicators**: Green overlay for correct, red for incorrect poses
+
+### Training Data Collection
+- **Auto-Capture**: Automatically saves images when pose is held correctly for 1 second
+- **Manual Capture**: Button to manually capture training images
+- **Organized Storage**: Images saved with pose name and timestamp
+- **Dataset Building**: Contributes to improving pose detection accuracy
+
+### Voice Coaching
+- **Pose Instructions**: "Now practicing Bhujangasana. Lie on stomach, lift chest with arms support."
+- **Real-time Corrections**: Spoken feedback for pose adjustments
+- **Session Guidance**: Welcome messages and completion celebrations
+- **Customizable**: Toggle voice guidance on/off as needed
+
+## 📱 Device Compatibility
+
+### Optimal Setup
 - **Distance**: 3-6 feet from camera for best AI analysis
-- **Lighting**: Good ambient lighting for accurate AI detection
+- **Lighting**: Good ambient lighting for accurate detection
 - **Background**: Plain background for enhanced AI processing
-- **Position**: Full body visible for complete biomechanical analysis
-- **Audio**: Enable speakers/headphones for AI voice guidance
-- **Space**: Clear area for AI-guided sequences and transitions
+- **Position**: Full body visible for complete pose analysis
+- **Audio**: Enable speakers/headphones for voice guidance
 
-### Browser Compatibility
-- Chrome 80+ (recommended)
-- Firefox 75+
-- Safari 13+
-- Edge 80+
+### Browser Support
+- **Chrome 80+** (recommended for best performance)
+- **Firefox 75+** (good compatibility)
+- **Safari 13+** (iOS/macOS support)
+- **Edge 80+** (Windows support)
 
-## Troubleshooting
-
-### Camera Issues
-- Check browser permissions (click lock icon in address bar)
-- Ensure HTTPS or localhost for camera access
-- Try different browser if issues persist
-- Clear browser cache and restart
-
-### Performance Issues
-- Close other browser tabs
-- Use good lighting conditions
-- Ensure plain background
-- Try Chrome for best performance
-
-### Server Issues
-```bash
-# Check if port is available
-netstat -an | grep 8000
-
-# Use different port if needed
-python -m http.server 3000
-```
-
-## Mobile Installation (PWA)
-
+### Mobile Installation (PWA)
 **iOS:**
 1. Open in Safari
 2. Tap Share → "Add to Home Screen"
@@ -164,161 +177,136 @@ python -m http.server 3000
 1. Open in Chrome
 2. Tap menu → "Add to Home Screen" or "Install App"
 
-## 🔬 Technical Details
+## 🔧 Troubleshooting
 
-### Core Technologies
-- **Frontend**: HTML5, CSS3, JavaScript ES6+
-- **ML Framework**: TensorFlow.js, PoseNet with MobileNetV1
-- **AI Engine**: Custom neural network for pose classification
-- **Analytics Engine**: Real-time biomechanical analysis algorithms
+### Camera Issues
+- **Permission Denied**: Click camera icon in browser address bar → Allow
+- **No Video**: Check if camera is being used by another application
+- **Poor Quality**: Ensure good lighting and stable internet connection
+- **Browser Issues**: Try Chrome for best compatibility
 
-### AI Capabilities
-- **Pose Detection**: 17 keypoints with 24+ engineered features
-- **Biomechanical Analysis**: Joint angles, muscle activation estimation
-- **Pattern Recognition**: User behavior analysis and adaptation
-- **Predictive Analytics**: Performance trend analysis and forecasting
-- **Safety Monitoring**: Real-time injury risk assessment
+### Performance Issues
+- **Slow Detection**: Close other browser tabs and applications
+- **Low Accuracy**: Ensure proper lighting and plain background
+- **Lag**: Check internet connection for AI model loading
+- **Memory Issues**: Refresh page if performance degrades
 
-### Performance Metrics
-- **Frame Rate**: 15-30+ FPS (device-dependent)
-- **Pose Accuracy**: 75-95% (condition-dependent)
-- **AI Response Time**: <100ms for real-time feedback
-- **Analytics Processing**: Real-time biomechanical calculations
-- **Memory Usage**: Optimized for mobile devices
+### AI Model Loading
+```bash
+# Check if port is available
+netstat -an | grep 8000
 
-## 📊 AI Enhancement Benefits
+# Use different port if needed
+python3 -m http.server 3000
+```
 
-### For Beginners
-- **Gentle Learning Curve**: AI adapts to your pace and provides encouraging feedback
-- **Safety First**: Real-time injury prevention monitoring keeps you safe
-- **Personalized Guidance**: Custom sequences designed for your skill level
-- **Progress Tracking**: See your improvement over time with detailed analytics
+### Common Solutions
+1. **Refresh Page**: Solves most initialization issues
+2. **Clear Cache**: Browser cache may interfere with updates
+3. **Check Console**: F12 → Console for detailed error messages
+4. **Camera Permissions**: Ensure browser has camera access
 
-### For Intermediate Practitioners
-- **Technique Refinement**: Biomechanical analysis helps perfect your form
-- **Challenging Sequences**: AI generates flows that push your boundaries safely
-- **Consistency Building**: Track and improve your practice consistency
-- **Weakness Identification**: AI identifies areas needing improvement
+## 📊 Technical Architecture
 
-### For Advanced Yogis
-- **Performance Optimization**: Advanced metrics help maximize efficiency
-- **Complex Sequences**: AI creates challenging flows with smooth transitions
-- **Injury Prevention**: Sophisticated monitoring prevents overexertion
-- **Teaching Insights**: Detailed analytics useful for yoga instructors
-
-### Universal Benefits
-- **24/7 Availability**: Your AI yoga instructor is always ready
-- **Personalized Experience**: Every session adapts to your unique needs
-- **Progress Motivation**: AI celebrates achievements and encourages growth
-- **Data-Driven Insights**: Make informed decisions about your practice
-- **Accessibility**: Works on any device with a camera
-- **Privacy**: All AI processing happens locally on your device
-
-## 📝 Project Structure
-
+### File Structure
 ```
 yoga_pose_detection/
-├── index.html                 # Main application with AI integration
-├── manifest.json             # PWA manifest
+├── index.html                 # Main application with dual-tab UI
+├── manifest.json             # PWA manifest for app installation
 ├── service-worker.js         # Offline functionality
 ├── src/js/                   # JavaScript modules
 │   ├── device_compatibility.js  # Device optimization
-│   ├── yoga_pose_detector.js    # Enhanced pose detection with AI
-│   ├── yoga_timer.js           # Smart timing system
-│   ├── ai_coach.js             # 🆕 AI Yoga Coach
-│   ├── smart_sequence_detector.js # 🆕 Intelligent sequence flows
-│   ├── pose_analytics.js       # 🆕 Advanced biomechanical analysis
-│   └── yoga_studio_app.js      # Main app with AI orchestration
-├── datasets/                 # Training data (10 pose folders)
-└── docs/                    # Documentation
+│   ├── yoga_pose_detector.js    # Enhanced pose detection with 12 poses
+│   ├── yoga_timer.js           # Smart timing system (30s/60s modes)
+│   ├── ai_coach.js             # AI Yoga Coach
+│   ├── smart_sequence_detector.js # Intelligent sequence flows
+│   ├── pose_analytics.js       # Advanced biomechanical analysis
+│   └── yoga_studio_app.js      # Main app orchestration
+├── datasets/                 # Training data and references
+│   ├── pose_images/          # 12 SVG pose illustrations (1.svg - 12.svg)
+│   └── [pose_folders]/       # Individual pose training images
+└── docs/                    # Documentation and presentations
 ```
 
-### 🆕 AI Modules Overview
+### Core Components
 
-#### 1. AI Yoga Coach (`ai_coach.js`)
-**Purpose**: Intelligent coaching system that learns from user behavior
-- Progress tracking with accuracy, hold time, and consistency metrics
-- Pattern recognition to identify strengths and weaknesses
-- Adaptive difficulty adjustment (beginner/intermediate/advanced)
-- Personalized recommendations based on performance data
-- Motivational system with context-aware encouragement
+#### 1. Yoga Pose Detector (`yoga_pose_detector.js`)
+- **12-Pose Support**: Complete Sun Salutation sequence
+- **Real-time Analysis**: Joint angle calculations and pose scoring
+- **Voice Feedback**: Intelligent correction system
+- **Training Capture**: Automatic and manual image capture
+- **Error Handling**: Graceful camera permission and initialization
 
-#### 2. Smart Sequence Detector (`smart_sequence_detector.js`)
-**Purpose**: AI-powered yoga sequence generation and guidance
-- Pre-built sequences (Sun Salutation, Beginner Flow, Strength Builder)
-- Personalized sequence generation based on user analytics
-- Real-time transition guidance with voice and visual cues
-- Adaptive sequencing that modifies based on performance
+#### 2. Main Application (`yoga_studio_app.js`)
+- **Dual-Tab UI**: Learn and Practice modes
+- **Timer Management**: 30s (Learn) / 60s (Practice) modes
+- **Session Tracking**: Progress monitoring and completion
+- **Pose Selection**: Grid-based pose selection and sequential practice
 
-#### 3. Advanced Pose Analytics (`pose_analytics.js`)
-**Purpose**: Comprehensive biomechanical analysis and injury prevention
-- Real-time joint angle calculations and muscle activation estimates
-- Injury prevention monitoring with safety warnings
-- Balance and stability metrics analysis
-- Performance efficiency measurements
-- Historical trend tracking and insights
+#### 3. AI Enhancement Modules
+- **AI Coach**: Progress tracking and personalized feedback
+- **Sequence Detector**: Guided yoga flows and transitions
+- **Pose Analytics**: Biomechanical analysis and injury prevention
 
-## 🚀 Getting Started with AI Features
+## 🎯 Performance Metrics
 
-### Quick AI Setup
-1. **Start a Session**: Click "Start Session" to activate AI coaching
-2. **Enable Voice Guidance**: Keep the "🔊 AI Voice Guidance" checkbox enabled
-3. **Try Sequence Mode**: Click "Sequence Mode" for guided flows
-4. **Generate Personal Flow**: Click "Personal Flow" for AI-customized sequences
-5. **View Analytics**: Click "Analytics" to see your progress insights
+### AI Capabilities
+- **Detection Speed**: 15-30+ FPS (device-dependent)
+- **Pose Accuracy**: 75-95% (condition-dependent)
+- **Response Time**: <100ms for real-time feedback
+- **Model Size**: Optimized MobileNetV1 for web deployment
+- **Memory Usage**: Efficient for mobile devices
 
-### AI Voice Commands
-- **"Start Session"**: Activates AI coaching
-- **"Sequence Mode"**: Begins guided yoga flows
-- **"Personal Flow"**: Creates customized sequences
-- **"Show Analytics"**: Displays progress data
+### User Experience
+- **Setup Time**: <30 seconds for first-time users
+- **Learning Curve**: Intuitive interface for all skill levels
+- **Session Length**: Flexible 30s or 60s per pose
+- **Completion Rate**: Visual progress tracking encourages full sessions
 
-### Understanding AI Feedback
-- **Green Border**: Perfect pose detected by AI
-- **Red Border**: AI suggests adjustments
-- **Voice Corrections**: Real-time AI guidance
-- **Safety Warnings**: AI injury prevention alerts
-- **Progress Notifications**: AI celebrates your achievements
+## 🔮 Future Enhancements
 
-## 📊 AI Data & Privacy
+### Planned Features
+- **Advanced Sequences**: Additional yoga flows beyond Sun Salutation
+- **Progress Analytics**: Detailed improvement tracking over time
+- **Social Features**: Community challenges and sharing
+- **Offline Mode**: Full functionality without internet connection
+- **Advanced AI**: Enhanced pose detection and correction algorithms
 
-- **Local Processing**: All AI computations happen on your device
-- **No Data Upload**: Your practice data stays private
-- **Offline Capable**: AI works without internet connection
-- **Auto-Save**: Correct poses automatically saved to downloads
-- **Progress Tracking**: Local storage for personal analytics
+### Technical Improvements
+- **WebRTC Integration**: Better camera handling and streaming
+- **Machine Learning**: Custom pose classification models
+- **Cloud Storage**: Synchronized progress across devices
+- **Accessibility**: Enhanced support for different physical abilities
 
-## 🤖 AI Implementation Details
+## 📝 Contributing
 
-### AI Architecture
-- **Modular Design**: Separate AI components for coaching, sequencing, and analytics
-- **Real-Time Processing**: All AI computations happen locally for privacy and speed
-- **Data Persistence**: Local storage for user progress and preferences
-- **Performance Optimization**: Efficient algorithms for real-time analysis
+### Development Setup
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/new-feature`
+3. Make changes and test thoroughly
+4. Commit changes: `git commit -m 'Add new feature'`
+5. Push to branch: `git push origin feature/new-feature`
+6. Submit pull request
 
-### Integration Points
-- **Main Application**: Enhanced `yoga_studio_app.js` orchestrates all AI components
-- **Pose Detection**: Upgraded `yoga_pose_detector.js` with AI-powered corrections
-- **User Interface**: Dynamic panels for analytics, sequences, and AI controls
-- **Voice System**: Integrated speech synthesis for AI coaching
+### Code Standards
+- **ES6+ JavaScript**: Modern syntax and features
+- **Modular Architecture**: Separate concerns and reusable components
+- **Error Handling**: Comprehensive try-catch and graceful fallbacks
+- **Documentation**: Clear comments and function descriptions
+- **Testing**: Manual testing across different devices and browsers
 
-### Performance Metrics
-- **AI Processing Speed**: <100ms response time for AI feedback
-- **Real-time Analysis**: Processed every frame (15-30 FPS)
-- **Pattern Recognition**: Continuous learning from user behavior
-- **Accuracy Improvements**: Enhanced pose detection through AI corrections
+## 📄 License
 
-### Privacy & Security
-- **Local Processing**: All AI processing happens on user's device
-- **No Data Upload**: Personal practice data never leaves the device
-- **Offline Capability**: AI works without internet connection
-- **Secure Storage**: Local browser storage for user data
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🔮 Future AI Enhancements
+## 🙏 Acknowledgments
 
-- **Computer Vision Improvements**: Enhanced pose detection accuracy
-- **Advanced Biomechanics**: Deeper physiological analysis
-- **Health Integration**: Connect with fitness trackers and health apps
-- **Social Features**: AI-powered community challenges
-- **Yoga Therapy**: AI-assisted therapeutic sequences
-- **Accessibility**: AI adaptations for different physical abilities
+- **TensorFlow.js Team**: For the amazing machine learning framework
+- **ml5.js Community**: For making AI accessible to web developers
+- **p5.js Foundation**: For the creative coding platform
+- **Yoga Community**: For inspiration and pose guidance
+- **Open Source Contributors**: For continuous improvements and feedback
+
+---
+
+**Built with ❤️ for the yoga community - Namaste! 🙏**
