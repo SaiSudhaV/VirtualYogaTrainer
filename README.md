@@ -26,11 +26,12 @@ Complete traditional Sun Salutation (Surya Namaskara) with:
 - **Progress Monitoring**: Track improvement across multiple sessions
 - **Voice Guidance**: Optional audio coaching with pose instructions
 
-### 📚 Dual Learning Modes
+### 📚 Professional Split-Screen Interface
+- **Left Panel**: Full-screen live video with zoom controls (50%-300%)
+- **Right Panel**: Comprehensive information display
 - **Learn Mode**: 30-second timer per pose for beginners
 - **Practice Mode**: 60-second timer per pose for advanced practitioners
 - **Interactive Pose Gallery**: Visual reference with SVG illustrations
-- **Sequential Practice**: Complete the full Sun Salutation sequence
 
 ### 📊 Advanced Analytics
 - **Biomechanical Analysis**: Real-time joint angle calculations
@@ -40,6 +41,10 @@ Complete traditional Sun Salutation (Surya Namaskara) with:
 
 ### 🎯 Core Features
 - **Real-time Pose Detection**: 12 yoga poses with AI-enhanced accuracy feedback
+- **Complete Body Coverage**: Zoom controls for full posture visibility
+- **Split-Screen Layout**: Live video on left, comprehensive info on right
+- **Pose Benefits Display**: Health advantages and therapeutic benefits
+- **Real-time Corrections**: Specific alignment guidance and feedback
 - **Webcam Integration**: Secure camera access with permission handling
 - **Cross-Platform**: Desktop, tablet, and mobile support with responsive design
 - **PWA Support**: Install as native app with offline capabilities
@@ -107,9 +112,10 @@ Complete traditional Sun Salutation (Surya Namaskara) with:
 ### First Time Setup
 1. **Camera Setup**: Position yourself 3-6 feet from camera
 2. **Lighting**: Ensure good ambient lighting and plain background
-3. **Choose Mode**: Select "Learn" (30s) or "Practice" (60s) mode
-4. **Select Pose**: Choose from 12 Sun Salutation poses
-5. **Start Session**: Click "Start Practice" to begin AI coaching
+3. **Adjust View**: Use zoom controls (50%-300%) to ensure complete body visibility
+4. **Choose Mode**: Select "Learn" (30s) or "Practice" (60s) mode
+5. **Select Pose**: Choose from 12 Sun Salutation poses
+6. **Start Session**: Click "Start Practice" to begin AI coaching with split-screen interface
 
 ## 💡 Usage Guide
 
@@ -117,11 +123,21 @@ Complete traditional Sun Salutation (Surya Namaskara) with:
 - **Pose Gallery**: Visual grid of all 12 poses with SVG illustrations
 - **Pose Selection**: Click any pose card to switch to Practice mode
 - **Reference Images**: High-quality SVG graphics for proper form guidance
+- **Pose Information**: Benefits and descriptions for each pose
 
 ### Practice Tab
-- **Live Video Feed**: Real-time webcam with pose overlay
-- **AI Feedback**: Instant accuracy percentage and corrections
-- **Timer Modes**: 30-second (Learn) or 60-second (Practice) sessions
+- **Split-Screen Layout**: Professional dual-panel interface
+- **Left Panel**: Full-screen live video with zoom controls
+  - Zoom range: 50% to 300% for complete body visibility
+  - Clean pose overlay without masking original video
+  - Reset zoom functionality for optimal positioning
+- **Right Panel**: Comprehensive information display
+  - Current pose reference image with SVG illustration
+  - Real-time timer with color-coded countdown
+  - Live pose accuracy percentage with progress bar
+  - **Pose Benefits Section**: Health advantages and therapeutic benefits
+  - **Real-time Corrections**: Specific alignment guidance (e.g., "Move your left arm closer")
+  - Practice mode selector and session controls
 - **Voice Guidance**: Optional audio coaching and corrections
 - **Progress Tracking**: Session completion and pose accuracy metrics
 
@@ -129,9 +145,12 @@ Complete traditional Sun Salutation (Surya Namaskara) with:
 - **🎯 Start Practice**: Begin AI-coached session with selected pose
 - **⏸️ Pause/Resume**: Pause session while maintaining progress
 - **🔄 Reset**: Reset session and return to starting state
+- **🔍 Zoom Controls**: Adjust video size (50%-300%) for complete body coverage
 - **🔊 Voice Toggle**: Enable/disable AI voice guidance
 - **📸 Manual Capture**: Capture current pose for training dataset
 - **📊 Progress Bar**: Visual session completion tracking
+- **🌟 Benefits Display**: Real-time pose benefits and health advantages
+- **🎯 Corrections Panel**: Live alignment feedback and specific guidance
 
 ## 🎯 AI Features in Action
 
@@ -159,7 +178,8 @@ Complete traditional Sun Salutation (Surya Namaskara) with:
 - **Distance**: 3-6 feet from camera for best AI analysis
 - **Lighting**: Good ambient lighting for accurate detection
 - **Background**: Plain background for enhanced AI processing
-- **Position**: Full body visible for complete pose analysis
+- **Position**: Full body visible - use zoom controls to adjust view
+- **Zoom**: Adjust from 50%-300% to ensure complete body coverage
 - **Audio**: Enable speakers/headphones for voice guidance
 
 ### Browser Support
@@ -238,7 +258,10 @@ yoga_pose_detection/
 - **Error Handling**: Graceful camera permission and initialization
 
 #### 2. Main Application (`yoga_studio_app.js`)
-- **Dual-Tab UI**: Learn and Practice modes
+- **Split-Screen Interface**: Professional dual-panel layout
+- **Zoom Controls**: Video scaling from 50% to 300%
+- **Benefits Display**: Real-time pose health advantages
+- **Corrections Engine**: Live alignment feedback system
 - **Timer Management**: 30s (Learn) / 60s (Practice) modes
 - **Session Tracking**: Progress monitoring and completion
 - **Pose Selection**: Grid-based pose selection and sequential practice
@@ -259,7 +282,9 @@ yoga_pose_detection/
 
 ### User Experience
 - **Setup Time**: <30 seconds for first-time users
-- **Learning Curve**: Intuitive interface for all skill levels
+- **Learning Curve**: Intuitive split-screen interface for all skill levels
+- **Body Coverage**: Complete posture visibility with zoom controls
+- **Real-time Feedback**: Instant benefits and corrections display
 - **Session Length**: Flexible 30s or 60s per pose
 - **Completion Rate**: Visual progress tracking encourages full sessions
 
@@ -267,10 +292,12 @@ yoga_pose_detection/
 
 ### Planned Features
 - **Advanced Sequences**: Additional yoga flows beyond Sun Salutation
+- **Enhanced Zoom**: Pan and tilt controls for video positioning
 - **Progress Analytics**: Detailed improvement tracking over time
 - **Social Features**: Community challenges and sharing
 - **Offline Mode**: Full functionality without internet connection
 - **Advanced AI**: Enhanced pose detection and correction algorithms
+- **Pose Variations**: Multiple difficulty levels for each pose
 
 ### Technical Improvements
 - **WebRTC Integration**: Better camera handling and streaming

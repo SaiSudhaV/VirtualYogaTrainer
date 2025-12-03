@@ -378,51 +378,43 @@ class YogaPoseDetector {
         if (this.poses.length > 0) {
             const pose = this.poses[0].pose;
             
+            // Draw keypoints with better visibility
             noStroke();
             for (let keypoint of pose.keypoints) {
-                if (keypoint.score > 0.2) {
-                    if (this.isCorrectPose) {
-                        fill(76, 175, 80);
-                    } else {
-                        fill(244, 67, 54);
-                    }
+                if (keypoint.score > 0.3) {
+                    // Use consistent green color for visibility
+                    fill(76, 175, 80, 180);
+                    ellipse(keypoint.position.x, keypoint.position.y, 8, 8);
+                    
+                    // Add white outline for better visibility
+                    fill(255, 255, 255, 100);
                     ellipse(keypoint.position.x, keypoint.position.y, 12, 12);
+                    fill(76, 175, 80);
+                    ellipse(keypoint.position.x, keypoint.position.y, 6, 6);
                 }
             }
             
-            strokeWeight(3);
+            // Draw skeleton with consistent color
+            strokeWeight(2);
             if (pose.skeleton) {
                 for (let skeleton of pose.skeleton) {
                     const [pointA, pointB] = skeleton;
-                    if (pointA.score > 0.2 && pointB.score > 0.2) {
-                        if (this.isCorrectPose) {
-                            stroke(76, 175, 80, 200);
-                        } else {
-                            stroke(244, 67, 54, 200);
-                        }
+                    if (pointA.score > 0.3 && pointB.score > 0.3) {
+                        stroke(76, 175, 80, 150);
                         line(pointA.position.x, pointA.position.y, 
                              pointB.position.x, pointB.position.y);
                     }
                 }
             }
-            
-            this.drawAccuracyOverlay();
         }
     }
     
     drawAccuracyOverlay() {
-        fill(255, 255, 255, 200);
-        rect(10, 10, 120, 30, 5);
-        
-        if (this.isCorrectPose) {
-            fill(76, 175, 80);
-        } else {
-            fill(244, 67, 54);
+        // Draw minimal overlay - accuracy shown in right panel
+        if (this.poses.length > 0) {
+            // Just draw pose points and skeleton, no text overlay
+            return;
         }
-        
-        textSize(16);
-        textAlign(LEFT, CENTER);
-        text(`${Math.round(this.poseAccuracy)}% Accurate`, 20, 25);
     }
 
     setTargetPose(poseIndex) {

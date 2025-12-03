@@ -10,6 +10,11 @@ let currentPoseIndex = 0;
 let completedPoses = [];
 let sessionStartTime = null;
 
+// Video zoom controls
+let zoomLevel = 1.0;
+let videoOffsetX = 0;
+let videoOffsetY = 0;
+
 // 12 Pose Sun Salutation Sequence
 const poseSequence = [
     'Pranamasana', 'Hasta Uttanasana', 'Pada Hastasana', 'Ashwa Sanchalanasana',
@@ -25,6 +30,16 @@ const poseDescriptions = {
     'Parvatasana': 'Form inverted V-shape, hands and feet on ground.',
     'Ashtanga Namaskara': 'Lower knees, chest, and chin to ground.',
     'Bhujangasana': 'Lie on stomach, lift chest with arms support.',
+};
+
+const poseBenefits = {
+    'Pranamasana': 'Calms the mind, improves focus and concentration. Helps center the body and prepare for practice.',
+    'Hasta Uttanasana': 'Stretches the chest and abdomen. Improves digestion and energizes the body.',
+    'Pada Hastasana': 'Stretches hamstrings and calves. Improves blood circulation to the brain.',
+    'Ashwa Sanchalanasana': 'Strengthens leg muscles. Improves balance and hip flexibility.',
+    'Parvatasana': 'Strengthens arms and shoulders. Stretches the entire back body and calves.',
+    'Ashtanga Namaskara': 'Strengthens arms and chest. Develops upper body strength and stability.',
+    'Bhujangasana': 'Strengthens the spine. Opens the chest and improves lung capacity.',
 };
 
 // Add manual capture function for training
@@ -46,59 +61,81 @@ let currentSessionData = {
 };
 
 function setup() {
-    // Get optimal canvas size
-    let canvasWidth = 640;
-    let canvasHeight = 480;
-    
-    if (deviceCompatibility) {
-        if (deviceCompatibility.isMobile) {
-            canvasWidth = Math.min(window.innerWidth - 40, 480);
-            canvasHeight = (canvasWidth * 3) / 4;
-        } else if (deviceCompatibility.isTablet) {
-            canvasWidth = Math.min(window.innerWidth - 350, 640);
-            canvasHeight = (canvasWidth * 3) / 4;
+    // Wait for DOM to be ready
+    setTimeout(() => {
+        const container = document.getElementById('canvas-container');
+        if (!container) {
+            console.error('Canvas container not found');
+            return;
         }
-    }
-    
-    // Create canvas
-    canvas = createCanvas(canvasWidth, canvasHeight);
-    canvas.parent('canvas-container');
-    
-    // Initialize components
-    poseDetector = new YogaPoseDetector();
-    yogaTimer = new YogaTimer();
-    
-    // Initialize AI components with error handling
-    try {
-        aiCoach = new AIYogaCoach();
-        smartSequenceDetector = new SmartSequenceDetector();
-        poseAnalytics = new PoseAnalytics();
-        console.log('AI components initialized successfully');
-    } catch (error) {
-        console.warn('AI components failed to initialize:', error);
-        aiCoach = null;
-        smartSequenceDetector = null;
-        poseAnalytics = null;
-    }
-    
-    // Initialize pose detection
-    poseDetector.initialize();
-    
-    // Setup UI
-    setupUI();
-    
-    console.log('Enhanced Yoga Studio initialized with 12 poses');
+        
+        const containerRect = container.getBoundingClientRect();
+        let canvasWidth = Math.floor(containerRect.width) || 640;
+        let canvasHeight = Math.floor(containerRect.height) || 480;
+        
+        // Ensure proper aspect ratio for video
+        const aspectRatio = 4/3;
+        if (canvasWidth / canvasHeight > aspectRatio) {
+            canvasWidth = canvasHeight * aspectRatio;
+        } else {
+            canvasHeight = canvasWidth / aspectRatio;
+        }
+        
+        // Create canvas to fill left half
+        canvas = createCanvas(canvasWidth, canvasHeight);
+        canvas.parent('canvas-container');
+        
+        // Initialize components
+        poseDetector = new YogaPoseDetector();
+        yogaTimer = new YogaTimer();
+        
+        // Initialize AI components with error handling
+        try {
+            aiCoach = new AIYogaCoach();
+            smartSequenceDetector = new SmartSequenceDetector();
+            poseAnalytics = new PoseAnalytics();
+            console.log('AI components initialized successfully');
+        } catch (error) {
+            console.warn('AI components failed to initialize:', error);
+            aiCoach = null;
+            smartSequenceDetector = null;
+            poseAnalytics = null;
+        }
+        
+        // Initialize pose detection
+        poseDetector.initialize();
+        
+        // Setup UI
+        setupUI();
+        
+        console.log('Enhanced Yoga Studio initialized with split-screen layout');
+    }, 100);
 }
 
 function draw() {
     if (poseDetector.video) {
-        // Display video
+        // Clear canvas
+        clear();
+        
+        // Calculate zoomed video dimensions
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
-        image(poseDetector.video, 0, 0, canvasWidth, canvasHeight);
+        const videoWidth = poseDetector.video.width * zoomLevel;
+        const videoHeight = poseDetector.video.height * zoomLevel;
         
-        // Draw pose landmarks
+        // Center the zoomed video
+        const x = (canvasWidth - videoWidth) / 2 + videoOffsetX;
+        const y = (canvasHeight - videoHeight) / 2 + videoOffsetY;
+        
+        // Draw video with zoom and offset
+        image(poseDetector.video, x, y, videoWidth, videoHeight);
+        
+        // Draw pose landmarks (adjust for zoom)
+        push();
+        translate(x, y);
+        scale(zoomLevel);
         poseDetector.drawPose();
+        pop();
         
         // Update session
         if (isSessionActive) {
@@ -112,6 +149,9 @@ function draw() {
             
             // Update UI
             updatePracticeUI(isCorrect, accuracy);
+            
+            // Update corrections display
+            updateCorrectionsDisplay();
             
             // Check for pose completion
             if (yogaTimer.checkPoseCompletion()) {
@@ -170,6 +210,9 @@ function setupUI() {
     
     // Add manual capture button
     addManualCaptureButton();
+    
+    // Initialize zoom display
+    document.getElementById('zoomLevel').textContent = '100%';
     
     // Initial setup
     selectPose(0);
@@ -238,11 +281,10 @@ function selectPose(poseIndex) {
     // Update UI
     const poseName = poseSequence[poseIndex];
     const currentPoseNameEl = document.getElementById('currentPoseName');
-    const currentPoseDescEl = document.getElementById('currentPoseDescription');
     const currentPoseImageEl = document.getElementById('currentPoseImage');
+    const benefitsTextEl = document.getElementById('benefitsText');
     
     if (currentPoseNameEl) currentPoseNameEl.textContent = poseName;
-    if (currentPoseDescEl) currentPoseDescEl.textContent = poseDescriptions[poseName] || 'Practice this pose with proper alignment.';
     if (currentPoseImageEl) {
         currentPoseImageEl.src = `datasets/pose_images/${poseIndex + 1}.svg`;
         currentPoseImageEl.onerror = () => {
@@ -250,10 +292,16 @@ function selectPose(poseIndex) {
             console.warn(`SVG not found: datasets/pose_images/${poseIndex + 1}.svg`);
         };
     }
+    if (benefitsTextEl) {
+        benefitsTextEl.textContent = poseBenefits[poseName] || 'Practice this pose with proper alignment.';
+    }
     
     // Update selector
     const poseSelectEl = document.getElementById('poseSelect');
     if (poseSelectEl) poseSelectEl.value = poseIndex;
+    
+    // Reset corrections
+    updateCorrectionsDisplay();
     
     // Reset timer if session is active
     if (isSessionActive) {
@@ -672,11 +720,20 @@ function keyPressed() {
 // Window resize handler
 function windowResized() {
     const container = document.getElementById('canvas-container');
-    if (container) {
-        const containerWidth = container.offsetWidth;
-        const aspectRatio = 640 / 480;
-        const newHeight = containerWidth / aspectRatio;
-        resizeCanvas(containerWidth, newHeight);
+    if (container && canvas) {
+        const containerRect = container.getBoundingClientRect();
+        let newWidth = Math.floor(containerRect.width) || 640;
+        let newHeight = Math.floor(containerRect.height) || 480;
+        
+        // Maintain aspect ratio
+        const aspectRatio = 4/3;
+        if (newWidth / newHeight > aspectRatio) {
+            newWidth = newHeight * aspectRatio;
+        } else {
+            newHeight = newWidth / aspectRatio;
+        }
+        
+        resizeCanvas(Math.max(newWidth, 320), Math.max(newHeight, 240));
     }
 }
 
@@ -698,6 +755,34 @@ function addManualCaptureButton() {
         captureBtn.textContent = '📸 Capture Training Image';
         captureBtn.onclick = captureTrainingImage;
         controlsPanel.appendChild(captureBtn);
+    }
+}
+
+// Zoom control functions
+function adjustZoom(delta) {
+    zoomLevel = Math.max(0.5, Math.min(3.0, zoomLevel + delta));
+    document.getElementById('zoomLevel').textContent = Math.round(zoomLevel * 100) + '%';
+}
+
+function resetZoom() {
+    zoomLevel = 1.0;
+    videoOffsetX = 0;
+    videoOffsetY = 0;
+    document.getElementById('zoomLevel').textContent = '100%';
+}
+
+function updateCorrectionsDisplay() {
+    const correctionsTextEl = document.getElementById('correctionsText');
+    if (correctionsTextEl && poseDetector && poseDetector.poseCorrections) {
+        if (poseDetector.poseCorrections.length > 0) {
+            correctionsTextEl.innerHTML = poseDetector.poseCorrections.map(correction => 
+                `• ${correction}`
+            ).join('<br>');
+        } else if (poseDetector.isCurrentPoseCorrect()) {
+            correctionsTextEl.textContent = '✅ Perfect alignment! Hold this position.';
+        } else {
+            correctionsTextEl.textContent = 'Adjust your posture for better alignment.';
+        }
     }
 }
 
