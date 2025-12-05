@@ -10,10 +10,10 @@ let currentPoseIndex = 0;
 let completedPoses = [];
 let sessionStartTime = null;
 
-// Video zoom controls
-let zoomLevel = 1.0;
-let videoOffsetX = 0;
-let videoOffsetY = 0;
+// Smart framing variables
+let personBounds = { x: 0, y: 0, width: 640, height: 480 };
+let frameUpdateCounter = 0;
+let autoFrameEnabled = false;
 
 // 12 Pose Sun Salutation Sequence
 const poseSequence = [
@@ -113,29 +113,38 @@ function setup() {
 }
 
 function draw() {
-    if (poseDetector.video) {
-        // Clear canvas
-        clear();
+    if (poseDetector && poseDetector.video) {
+        background(0);
         
-        // Calculate zoomed video dimensions
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
-        const videoWidth = poseDetector.video.width * zoomLevel;
-        const videoHeight = poseDetector.video.height * zoomLevel;
+        // Update person bounds every 10 frames for performance
+        if (autoFrameEnabled && poseDetector.poses && poseDetector.poses.length > 0) {
+            frameUpdateCounter++;
+            if (frameUpdateCounter >= 10) {
+                calculatePersonBounds();
+                frameUpdateCounter = 0;
+            }
+        }
         
-        // Center the zoomed video
-        const x = (canvasWidth - videoWidth) / 2 + videoOffsetX;
-        const y = (canvasHeight - videoHeight) / 2 + videoOffsetY;
+        // Calculate smart frame or use full video
+        const frame = autoFrameEnabled ? calculateSmartFrame() : {
+            srcX: 0, srcY: 0, srcWidth: 640, srcHeight: 480,
+            destX: 0, destY: 0, destWidth: canvas.width, destHeight: canvas.height,
+            scale: Math.min(canvas.width / 640, canvas.height / 480)
+        };
         
-        // Draw video with zoom and offset
-        image(poseDetector.video, x, y, videoWidth, videoHeight);
+        // Draw video
+        image(poseDetector.video, 
+              frame.destX, frame.destY, frame.destWidth, frame.destHeight,
+              frame.srcX, frame.srcY, frame.srcWidth, frame.srcHeight);
         
-        // Draw pose landmarks (adjust for zoom)
-        push();
-        translate(x, y);
-        scale(zoomLevel);
-        poseDetector.drawPose();
-        pop();
+        // Draw pose landmarks
+        if (poseDetector.poses && poseDetector.poses.length > 0) {
+            push();
+            translate(frame.destX, frame.destY);
+            scale(frame.scale);
+            poseDetector.drawPose();
+            pop();
+        }
         
         // Update session
         if (isSessionActive) {
@@ -188,6 +197,11 @@ function setupUI() {
     document.getElementById('startBtn').onclick = startSession;
     document.getElementById('pauseBtn').onclick = pauseSession;
     document.getElementById('resetBtn').onclick = resetSession;
+    document.getElementById('captureBtn').onclick = () => {
+        if (poseDetector && poseDetector.video) {
+            poseDetector.captureCorrectPose();
+        }
+    };
     
     document.getElementById('poseSelect').onchange = (e) => {
         selectPose(parseInt(e.target.value));
@@ -769,6 +783,50 @@ function resetZoom() {
     videoOffsetX = 0;
     videoOffsetY = 0;
     document.getElementById('zoomLevel').textContent = '100%';
+}
+
+function calculatePersonBounds() {
+    if (!poseDetector.poses || poseDetector.poses.length === 0) return;
+    
+    const pose = poseDetector.poses[0].pose;
+    const keypoints = pose.keypoints.filter(kp => kp.score > 0.3);
+    if (keypoints.length < 5) return;
+    
+    let minX = Math.min(...keypoints.map(kp => kp.position.x));
+    let minY = Math.min(...keypoints.map(kp => kp.position.y));
+    let maxX = Math.max(...keypoints.map(kp => kp.position.x));
+    let maxY = Math.max(...keypoints.map(kp => kp.position.y));
+    
+    const margin = 50;
+    personBounds = {
+        x: Math.max(0, minX - margin),
+        y: Math.max(0, minY - margin),
+        width: Math.min(640, maxX - minX + 2 * margin),
+        height: Math.min(480, maxY - minY + 2 * margin)
+    };
+}
+
+function calculateSmartFrame() {
+    const srcX = personBounds.x;
+    const srcY = personBounds.y;
+    const srcWidth = personBounds.width;
+    const srcHeight = personBounds.height;
+    
+    const scale = Math.min(canvas.width / srcWidth, canvas.height / srcHeight);
+    const destWidth = srcWidth * scale;
+    const destHeight = srcHeight * scale;
+    
+    return {
+        srcX, srcY, srcWidth, srcHeight,
+        destX: (canvas.width - destWidth) / 2,
+        destY: (canvas.height - destHeight) / 2,
+        destWidth, destHeight, scale
+    };
+}
+
+function toggleAutoFrame() {
+    autoFrameEnabled = !autoFrameEnabled;
+    console.log('Auto frame:', autoFrameEnabled ? 'ON' : 'OFF');
 }
 
 function updateCorrectionsDisplay() {

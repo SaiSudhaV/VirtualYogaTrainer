@@ -247,7 +247,8 @@ class YogaPoseDetector {
             
             if (this.isCorrectPose) {
                 this.correctPoseFrames++;
-                if (this.correctPoseFrames >= this.requiredCorrectFrames) {
+                // Auto-capture every 60 frames (2 seconds) to prevent spam
+                if (this.correctPoseFrames >= 60) {
                     this.captureCorrectPose();
                     this.correctPoseFrames = 0;
                 }
@@ -557,6 +558,11 @@ class YogaPoseDetector {
         const filename = `training_${poseName}_${timestamp}.jpg`;
         
         const url = URL.createObjectURL(blob);
+        
+        // Display captured image in UI
+        this.displayCapturedImage(url, poseName, timestamp);
+        
+        // Download the image
         const a = document.createElement('a');
         a.href = url;
         a.download = filename;
@@ -564,10 +570,27 @@ class YogaPoseDetector {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
         
         console.log(`Captured training image: ${filename}`);
         this.showCaptureNotification(poseName);
+    }
+    
+    displayCapturedImage(url, poseName, timestamp) {
+        const capturedImages = document.getElementById('capturedImages');
+        const noCaptures = capturedImages.querySelector('.no-captures');
+        
+        if (noCaptures) {
+            noCaptures.remove();
+        }
+        
+        const imageDiv = document.createElement('div');
+        imageDiv.className = 'captured-image';
+        imageDiv.innerHTML = `
+            <img src="${url}" alt="${poseName}">
+            <div class="timestamp">${new Date().toLocaleTimeString()}</div>
+        `;
+        
+        capturedImages.appendChild(imageDiv);
     }
     
     showCaptureEffect() {
